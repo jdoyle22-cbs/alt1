@@ -1,0 +1,31 @@
+{% block page_styles %}
+<style nonce="{{ g.csp_nonce }}">
+    #post-{{ post.id }} {
+        view-transition-name: post-{{ post.id }};
+    }
+</style>
+{% endblock %}
+
+<article class="post-view" id="post-{{ post.id }}">
+    <header class="__header">
+        <a href="{{ url_for('post.view', post_id=post.id) }}">@{{ post.user.display_name }}</a>
+        <span>&#8226;</span>
+        <time>{{ post.created_at }}</time>
+    </header>
+
+    <div class="__title">
+        <h1>{{ post.title }}</h1>
+    </div>
+
+    {% if post.body %}
+    <p>{{ post.body }}</p>
+    {% endif %}
+
+    <footer class="__actions">
+    {% with user_reaction=user_reaction %}
+        {% include "components/posts/reaction_buttons.html" %}
+    {% endwith %}
+    </footer>
+</article>
+
+<div hx-nonce="{{ g.csp_nonce }}" hx-trigger="load" hx-get="{{ url_for('post.get_replies', post_id=post.id) }}">Loading...</div>

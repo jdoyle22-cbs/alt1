@@ -1,0 +1,7 @@
+{% macro button(text, icon="", variant="secondary", hx_action="", hx_method="") %}
+<button class="variant-{{ variant }}" {% if hx_action %}hx-target="{{ hx_action }}" {% endif %} {% if hx_method
+    %}hx-post="{{ hx_method }}" {% endif %}>
+    {% if icon %}<span class="__icon">{{ icon }}</span>{% endif %}
+    {{ text }}
+</button>
+{% endmacro %}

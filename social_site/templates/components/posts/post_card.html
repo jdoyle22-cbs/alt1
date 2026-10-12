@@ -1,0 +1,19 @@
+<article class="post-card transition-test" id="post-{{ post.id }}">
+    <header class="__header">
+        <a href="{{ url_for('post.view', post_id=post.id) }}">@{{ post.user.display_name }}</a>
+        <span>&#8226;</span>
+        <time>{{ post.created_at }}</time>
+    </header>
+
+    <a class="__title" href="{{ url_for('post.view', post_id=post.id) }}">
+        <h1>{{ post.title }}</h1>
+    </a>
+
+    {% if post.body %}
+    <p>{{ post.body }}</p>
+    {% endif %}
+
+    <footer class="__actions">
+        {% include "components/posts/reaction_buttons.html" %}
+    </footer>
+</article>

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block page_styles %}
+<style nonce="{{ g.csp_nonce }}">
+    {% for post in posts %}
+        #post-{{ post.id }} {
+            view-transition-name: post-{{ post.id }};
+        }
+    {% endfor %}
+</style>
+{% endblock %}
+
+{% block header %}
+<h1 class="page-header">{% block title %}Home{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="post-list">
+    {% for post in posts %}
+        {% include "components/posts/post_card.html" with context %}
+    {% endfor %}
+</div>
+{% endblock %}

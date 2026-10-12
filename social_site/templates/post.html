@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<a class="variant-secondary" style="margin-top: 16px; margin-bottom: 16px;" href="{{ url_for('index') }}">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="post-list">
+    {% include "components/posts/post_view.html" with context %}
+</div>
+{% endblock %}
