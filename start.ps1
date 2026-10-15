@@ -17,8 +17,10 @@ $env:PYTHON_JIT=1
 $command = @"
 Write-Host ' * Starting server...'
 Write-Host ' * Running in mode: $mode`n'
-& '$python' -m flask --app social_site run $mode
+& '$python' -m flask --app social_site run $mode --host 127.0.0.1 --port 5000 --cert localhost+2.pem -key localhost+2-key.pem
 "@
+
+Write-Output $command
 
 # Start dev server
 Start-Process powershell.exe -ArgumentList @(

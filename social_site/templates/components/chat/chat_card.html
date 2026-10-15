@@ -1,0 +1,9 @@
+<div class="chat-card" id="chat-{{ chat.id }}">
+    <header class="__header">
+        <time>{{ chat.created_at }}</time>
+    </header>
+
+    <a class="__title" href="{{ url_for('chat.chatroom', chat_id=chat.id) }}">
+        <h1>{{ chat.title }}</h1>
+    </a>
+</div>

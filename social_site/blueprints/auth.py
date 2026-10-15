@@ -1,13 +1,16 @@
+import copy
 import functools
+
+import base64
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 
-from social_site.db import db_session
+from social_site import db
 from social_site.models import User
 
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from sqlalchemy.exc import NoResultFound, SQLAlchemyError, IntegrityError
 
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerifyMismatchError
@@ -18,7 +21,6 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
-    print(request.form)
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         display_name = request.form.get('display_name', '').strip()
@@ -40,10 +42,10 @@ def register():
 
         if error is None:
             try:
-                db_session.add(User(username, display_name, email, password_hash))
-                db_session.commit()
+                db.session.add(User(username, display_name, email, password_hash))
+                db.session.commit()
             except IntegrityError as e:
-                db_session.rollback()
+                db.session.rollback()
 
                 message = str(e.orig)
 
@@ -72,9 +74,9 @@ def check_password(user: User, password: str) -> bool:
     if ph.check_needs_rehash(user.password_hash):
         try:
             user.password_hash = ph.hash(password)
-            db_session.commit()
+            db.session.commit()
         except IntegrityError:
-            db_session.rollback()
+            db.session.rollback()
             raise
 
     return True
@@ -85,9 +87,9 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        user = db_session.query(User).filter(User.username == username).first()
-
-        if user is None:
+        try:
+            user = db.session.execute(db.select(User).filter_by(username=username)).scalar_one()
+        except NoResultFound:
             flash("Incorrect username.")
             return render_template("auth/login.html")
 
@@ -118,7 +120,20 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = db_session.query(User).filter(User.id == user_id).first()
+        # Fetch the user object cleanly
+        user_row = db.session.execute(db.select(User).filter_by(id=user_id)).first()
+        
+        if user_row is None:
+            g.user = None
+            return
+            
+        g.user = copy.deepcopy(user_row[0])
+        
+        image_b64 = None
+        if g.user.profile_picture and isinstance(g.user.profile_picture, bytes):
+            image_b64 = base64.b64encode(g.user.profile_picture).decode('utf-8')
+
+        g.user.profile_picture = image_b64
 
 # Wrapper for views that make them require auth or redirect to login
 # So many type: ignore, but there's no docs on what types these take

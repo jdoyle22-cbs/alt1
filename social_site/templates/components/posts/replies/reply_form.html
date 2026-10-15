@@ -1,0 +1,16 @@
+<form 
+    class="reply-form"
+    id="reply-form-{{ parent_id }}"
+    hx-post="{{ url_for('reply.create', parent_id=parent_id) }}"
+    hx-target="this"
+    hx-swap="outerHTML"
+    hx-nonce="{{ g.csp_nonce }}"
+>
+    <div class="textarea-container">
+        <button class="textarea-button variant-primary" type="submit">Reply</button>
+        <textarea name="reply_{{ parent_id }}_content" id="reply_{{ parent_id }}_content" hx-validate="true"></textarea>
+    </div>
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+</form>

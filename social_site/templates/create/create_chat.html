@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Create Chat{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+<form     
+    hx-post="{{ url_for('create.create_chat') }}"
+    hx-target="#error"
+    hx-swap="innerHTML"
+    hx-nonce="{{ g.csp_nonce }}"
+>
+    <div>
+        <label for="member_ids">Member ID's</label>
+        <input type="text" name="member_ids" id="member_ids" class="width-full" required>
+    </div>
+
+    <div>
+        <label for="title">Title</label>
+        <input type="text" name="title" id="title" class="width-full" maxlength="200" required>
+    </div>
+
+    <div id="error"></div>
+
+    <button type="submit" class="variant-primary" :disabled="!q('input[required]').value" :aria-busy="matches('.htmx-request')" hx-nonce="{{ g.csp_nonce }}">Create</button>
+</form>
+{% endblock %}

@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
+{% from 'components/pagination.html' import render_pagination %}
 
-{% block page_styles %}
+{% block head %}
 <style nonce="{{ g.csp_nonce }}">
-    {% for post in posts %}
+    {% for post in page %}
         #post-{{ post.id }} {
             view-transition-name: post-{{ post.id }};
         }
@@ -11,13 +12,9 @@
 {% endblock %}
 
 {% block header %}
-<h1 class="page-header">{% block title %}Home{% endblock %}</h1>
+<h1>{% block title %}Home{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-<div class="post-list">
-    {% for post in posts %}
-        {% include "components/posts/post_card.html" with context %}
-    {% endfor %}
-</div>
+{% include "/components/posts/post_list.html" with context %}
 {% endblock %}

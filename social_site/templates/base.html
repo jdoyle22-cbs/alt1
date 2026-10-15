@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 
 <html>
 
@@ -11,31 +11,41 @@
         Minified files should be used in production.
         -->
     <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='/js/htmax.js') }}"></script>
+    <script nonce="{{ g.csp_nonce }}">
+        htmx.config.safeEval = true;
+        htmx.config.transitions = true;
+    </script>
     <!-- CSP (Content Security Policy) support for HTMX -->
     <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='/js/hx-csp.js') }}"></script>
     <meta name="description" content="Flask Social Media Site">
     <meta name="keywords" content="Social, Media, Social Media">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% block page_styles %}{% endblock %}
+    <meta
+        name="htmx-config"
+        content='{"extensions":"hx-csp","safeEval":"true"}'
+    >
+    {% block head %}{% endblock %}
 </head>
 
 <body hx-ext="hx-csp" hx-nonce="{{ g.csp_nonce }}">
-    <nav>
-        <h1>Social Site</h1>
-        <div class="account">
-            {% if g.user %}
-            <span>{{ g.user['username'] }}</span>
-            <a href="{{ url_for('auth.logout') }}">Log Out</a>
-            {% else %}
-            <a href="{{ url_for('auth.register') }}">Register</a>
-            <a href="{{ url_for('auth.login') }}">Log In</a>
-            {% endif %}
+    <dialog id="auth_dialog">
+        <div class="__header">
+            <h1>You need to login to do that</h1>
+            <p>Login to like and dislike, reply, post and more.</p>        
         </div>
-    </nav>
+        <div class="__footer">
+            <a class="button variant-primary" href="{{ url_for('auth.login') }}">Login</a>
+            <button class="variant-secondary" command="close" commandfor="auth_dialog">Close</button>
+        </div>
+    </dialog>
+    {% include "components/navbar.html" %}
+    {% include "components/nav-mobile.html" %}
     <main>
-        <header>
-            {% block header %}{% endblock %}
-        </header>
+        {% if not hide_header %}
+            <header class="page-header">
+                {% block header %}{% endblock %}
+            </header>
+        {% endif %}
         {% block content %}{% endblock %}
     </main>
 </body>

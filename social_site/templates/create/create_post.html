@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Create Post{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+<form     
+    hx-post="{{ url_for('create.create_post') }}"
+    hx-target="#error"
+    hx-swap="innerHTML"
+    hx-nonce="{{ g.csp_nonce }}"
+>
+    <div>
+        <label for="topic_id">Topic ID</label>
+        <input type="text" name="topic_id" id="topic_id" class="width-full" required>
+    </div>
+
+    <div>
+        <label for="title">Title</label>
+        <input type="text" name="title" id="title" class="width-full" maxlength="200" required>
+    </div>
+
+    <div>
+        <label for="body">Body</label>
+        <textarea name="body" id="body" maxlength="10000"></textarea>
+    </div>
+
+    <div>
+        <label for="href">Href</label>
+        <input type="text" name="href" id="href" class="width-full">
+    </div>
+
+    <div>
+        <label for="image">Image</label>
+        <input type="text" class="width-full">
+    </div>
+
+    <div id="error"></div>
+
+    <button type="submit" class="variant-primary" :disabled="!q('input[required]').value" :aria-busy="matches('.htmx-request')" hx-nonce="{{ g.csp_nonce }}">Create</button>
+</form>
+{% endblock %}

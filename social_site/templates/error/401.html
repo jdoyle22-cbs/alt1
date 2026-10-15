@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Unauthorised{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <div class="__header">
+        <h1>401</h1>
+        <p>WYou are not authorised to perform this action.</p>
+    </div>
+    <div class="__footer">
+        <a href="{{ url_for('index') }}" class="button variant-secondary">Home</a>
+    </div>
+</div>
+{% endblock %}

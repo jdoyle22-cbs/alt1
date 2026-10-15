@@ -1,14 +1,17 @@
-{% block page_styles %}
+{% block head %}
 <style nonce="{{ g.csp_nonce }}">
     #post-{{ post.id }} {
         view-transition-name: post-{{ post.id }};
     }
 </style>
+<script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/share.js') }}" defer></script>
 {% endblock %}
 
 <article class="post-view" id="post-{{ post.id }}">
     <header class="__header">
         <a href="{{ url_for('post.view', post_id=post.id) }}">@{{ post.user.display_name }}</a>
+        <span>&#8226;</span>
+        <a href="{{ url_for('post.view', post_id=post.id) }}">{{ post.topic.name }}</a>
         <span>&#8226;</span>
         <time>{{ post.created_at }}</time>
     </header>
@@ -22,10 +25,31 @@
     {% endif %}
 
     <footer class="__actions">
-    {% with user_reaction=user_reaction %}
-        {% include "components/posts/reaction_buttons.html" %}
-    {% endwith %}
+        {% with user_reaction=user_reaction %}
+            {% include "components/posts/reaction_buttons.html" %}
+            <button
+                class="variant-secondary"
+                id="share-button"
+                data-title="{{ post.title }}"
+                data-url="{{ request.url }}"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="var(--color-foreground)" height="16" width="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
+                </svg>
+                Share
+            </button>
+        {% endwith %}
+        {% with parent_id=post.id %}
+            <button hx-nonce="{{ g.csp_nonce }}" id="reply-to-post-btn-{{ parent_id }}" class="variant-secondary {% if small %} small {% endif %}" hx-get="/reply/create/{{ parent_id }}" hx-target="#reply-to-post-btn-{{ parent_id }}" hx-swap="outerHTML">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="var(--color-foreground)" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+                </svg>
+                Reply
+            </button>
+        {% endwith %}
     </footer>
 </article>
 
-<div hx-nonce="{{ g.csp_nonce }}" hx-trigger="load" hx-get="{{ url_for('post.get_replies', post_id=post.id) }}">Loading...</div>
+<div hx-nonce="{{ g.csp_nonce }}" hx-trigger="load" hx-get="{{ url_for('post.get_replies', post_id=post.id) }}" class="loading-skeleton">
+    <svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+</div>

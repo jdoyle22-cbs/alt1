@@ -1,12 +1,20 @@
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 
 from .db import Base
 
-from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Integer, String, Table, Text, Boolean, UniqueConstraint, func
+from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Integer, LargeBinary, String, Table, Text, Boolean, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 # Association tables
+
+topic_member_association_table = Table(
+    "topic_member_association_table",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("user.id"), primary_key=True),
+    Column("topic_id", Integer, ForeignKey("topic.id"), primary_key=True),
+)
 
 tags_association_table = Table(
     "tags_association_table",
@@ -40,12 +48,13 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(
         Text, nullable=False
     )
-    profile_picture: Mapped[str] = mapped_column(
-        Text, nullable=True
+    profile_picture: Mapped[Optional[bytes]] = mapped_column(
+        LargeBinary, nullable=True
     )
 
     # Relations
     posts: Mapped[list["Post"]] = relationship(back_populates="user")
+    topics: Mapped[list["Topic"]] = relationship(secondary=topic_member_association_table, back_populates="members")
     replies: Mapped[list["Reply"]] = relationship(back_populates="user")
     reactions: Mapped[list["Reaction"]] = relationship(back_populates="user")
     settings: Mapped["UserSettings | None"] = relationship(back_populates="user", cascade="all, delete-orphan")
@@ -81,6 +90,10 @@ class Topic(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     posts: Mapped[list["Post"]] = relationship(back_populates="topic")
+    members: Mapped[list["User"]] = relationship(secondary=topic_member_association_table, back_populates="topics")
+
+    description: Mapped[str] = mapped_column(String(9999), nullable=False)
+    image: Mapped[Optional[bytes]] = mapped_column(LargeBinary, nullable=True)
 
 class Tag(Base):
     __tablename__ = "tag"
@@ -117,9 +130,9 @@ class Post(Base):
 
     # Post data
     title: Mapped[str] = mapped_column(String(200), nullable=False)
-    body: Mapped[str | None] = mapped_column(Text, nullable=True)
-    href: Mapped[str | None] = mapped_column(Text, nullable=True)
-    image: Mapped[str | None] = mapped_column(Text, nullable=True)
+    body: Mapped[Optional[str | None]] = mapped_column(Text, nullable=True)
+    href: Mapped[Optional[str | None]] = mapped_column(Text, nullable=True)
+    image: Mapped[Optional[str | None]] = mapped_column(Text, nullable=True)
 
 class Reply(Base):
     __tablename__ = "reply"
@@ -139,7 +152,7 @@ class Reply(Base):
 
     reactions: Mapped[list["Reaction"]] = relationship(back_populates="reply")
 
-    parent_id: Mapped[int | None] = mapped_column(ForeignKey("reply.id"), nullable=True)
+    parent_id: Mapped[Optional[int | None]] = mapped_column(ForeignKey("reply.id"), nullable=True)
     parent: Mapped["Reply | None"] = relationship(back_populates="children", remote_side="Reply.id")
     children: Mapped[list["Reply"]] = relationship(back_populates="parent")
 
@@ -176,16 +189,23 @@ class Reaction(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
     user: Mapped["User"] = relationship(back_populates="reactions")
 
-    post_id: Mapped[int | None] = mapped_column(ForeignKey("post.id"), nullable=True)
+    post_id: Mapped[Optional[int | None]] = mapped_column(ForeignKey("post.id"), nullable=True)
     post: Mapped["Post | None"] = relationship(back_populates="reactions")
 
-    reply_id: Mapped[int | None] = mapped_column(ForeignKey("reply.id"), nullable=True)
+    reply_id: Mapped[Optional[int | None]] = mapped_column(ForeignKey("reply.id"), nullable=True)
     reply: Mapped["Reply | None"] = relationship(back_populates="reactions")
 
 class Chat(Base):
     __tablename__ = "chat"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.current_timestamp(),
+        nullable=False,
+    )
+
+    title: Mapped[str] = mapped_column(String(100), nullable=False)
     
     members: Mapped[list["User"]] = relationship(
         secondary=chat_association_table, back_populates="chats"

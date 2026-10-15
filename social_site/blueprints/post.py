@@ -1,13 +1,13 @@
 from flask import Blueprint, abort, g, render_template
 from sqlalchemy import select
-from social_site.db import db_session
+from social_site.db import db
 from social_site.models import Post, Reaction, ReactionType, Reply
 
 bp = Blueprint('post', __name__, url_prefix='/post')
 
 @bp.route('/<int:post_id>', methods=['GET'])
 def view(post_id: int):
-    post = db_session.get(Post, post_id)
+    post = db.session.get(Post, post_id)
 
     if post is None:
         abort(404)
@@ -15,10 +15,10 @@ def view(post_id: int):
     reaction = None
 
     if g.user is not None:
-        reaction = db_session.scalar(
-            select(Reaction).where(
-                Reaction.post_id == post.id,
-                Reaction.user_id == g.user.id,
+        reaction = db.session.scalar(
+            db.select(Reaction).filter_by(
+                post_id=post.id,
+                user_id=g.user.id,
             )
         )
 
@@ -37,21 +37,21 @@ def react(post_id: int, reaction_type: str):
     if reaction_type not in type_dict:
         return render_template("components/posts/reaction_buttons.html")
 
-    post = db_session.get(Post, post_id)
+    post = db.session.get(Post, post_id)
     if post is None:
         return render_template("components/posts/reaction_buttons.html")
 
-    existing = db_session.scalar(
-        select(Reaction).where(
-            Reaction.post_id == post_id,
-            Reaction.user_id == g.user.id,
+    existing = db.session.scalar(
+        select(Reaction).filter_by(
+            post_id=post_id,
+            user_id=g.user.id,
         )
     )
 
     requested_type = type_dict[reaction_type]
 
     if existing is None:
-        db_session.add(
+        db.session.add(
             Reaction(
                 post_id=post_id,
                 user_id=g.user.id,
@@ -59,16 +59,16 @@ def react(post_id: int, reaction_type: str):
             )
         )
     elif existing.type == requested_type:
-        db_session.delete(existing)
+        db.session.delete(existing)
     else:
         existing.type = requested_type
 
-    db_session.commit()
+    db.session.commit()
 
-    user_reaction = db_session.scalar(
-        select(Reaction).where(
-            Reaction.post_id == post_id,
-            Reaction.user_id == g.user.id,
+    user_reaction = db.session.scalar(
+        select(Reaction).filter_by(
+            id=post_id,
+            user_id=g.user.id,
         )
     )
 
@@ -80,7 +80,7 @@ def react(post_id: int, reaction_type: str):
 
 @bp.get("/<int:post_id>/replies")
 def get_replies(post_id: int):
-    replies = db_session.query(Reply).filter(Reply.post_id == post_id).all()
+    replies = db.session.execute(db.select(Reply).filter_by(post_id=post_id)).scalars()
 
     return render_template(
         "components/posts/replies/reply_section.html",

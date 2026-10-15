@@ -3,11 +3,12 @@ import secrets
 
 from dotenv import load_dotenv
 
+from social_site.db import db, init_db_command
 from social_site.models import Post
 load_dotenv()
 
-from flask import Flask, g, render_template
-from social_site.db import db_session, init_db_command
+from flask import Flask, g, render_template, request, Response
+from werkzeug.exceptions import NotFound, Unauthorized
 
 def create_app():
     # create and configure the app
@@ -28,41 +29,56 @@ def create_app():
         g.csp_nonce = secrets.token_urlsafe(16)
 
     @app.after_request
-    def set_csp_header(response):
+    def set_csp_header(response: Response) -> Response:
         nonce = g.csp_nonce
 
+        # Content Security Policy, prevents many types of attacks by verifying scripts are legitimate
+        # See MDN Web Docs: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
             f"script-src 'self' 'nonce-{nonce}'; "
             f"style-src 'self' 'nonce-{nonce}'; "
-            "object-src 'none'; "
+            "object-src 'self' https://youtube.com https://imgur.com; "
             "base-uri 'self'; "
+            "img-src 'self' data:; "
             "require-trusted-types-for 'script'; "
             "trusted-types htmx"
         )
 
         return response
 
-    posts = Post.query.all()
-
     @app.route('/')
     def index():
-        return render_template('index.html', posts=posts)
+        page = db.paginate(
+            db.select(Post).order_by(Post.created_at.desc()),
+            page=int(request.args.get("page", 1)),
+            per_page=10,
+            error_out=False,
+        )
+            
+        return render_template('index.html', page=page)
 
-    @app.route('/api/status')
-    def status():
-        return { 
-            "server_online": True
-        }
+    # Error handlers
+    @app.errorhandler(NotFound)
+    def not_found(error: NotFound):
+        return render_template('error/404.html', hide_header=True), 404
 
-    @app.teardown_appcontext
-    def shutdown_session(exception=None):
-        db_session.remove()
+    @app.errorhandler(Unauthorized)
+    def unauthorized(error: Unauthorized):
+        return render_template('error/401.html', hide_header=True), 401
 
+    # CLI
     app.cli.add_command(init_db_command)
-    
-    from .blueprints import auth, post
+
+    # Blueprints
+    from .blueprints import auth, post, reply, create, chat
     app.register_blueprint(auth.bp)
     app.register_blueprint(post.bp)
+    app.register_blueprint(reply.bp)
+    app.register_blueprint(create.bp)
+    app.register_blueprint(chat.bp)
+
+    # DB
+    db.init_app(app)
 
     return app
