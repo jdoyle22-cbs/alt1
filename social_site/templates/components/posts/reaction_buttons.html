@@ -10,6 +10,7 @@
             commandfor="auth_dialog"
         {% endif %}
         hx-nonce="{{ g.csp_nonce }}"
+        aria-label="Like"
     >
         {% if user_reaction and g.user and user_reaction.type.name == "LIKE" %} 
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--color-foreground)" width="16" height="16">
@@ -33,6 +34,7 @@
             commandfor="auth_dialog"
         {% endif %}
         hx-nonce="{{ g.csp_nonce }}"
+        aria-label="Dislike"
     >
         {% if user_reaction and g.user and user_reaction.type.name == "DISLIKE" %} 
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--color-foreground)" width="16" height="16">

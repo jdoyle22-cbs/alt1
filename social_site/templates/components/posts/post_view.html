@@ -7,26 +7,35 @@
 <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/share.js') }}" defer></script>
 {% endblock %}
 
-<article class="post-view" id="post-{{ post.id }}">
-    <header class="__header">
-        <a href="{{ url_for('post.view', post_id=post.id) }}">@{{ post.user.display_name }}</a>
-        <span>&#8226;</span>
-        <a href="{{ url_for('post.view', post_id=post.id) }}">{{ post.topic.name }}</a>
-        <span>&#8226;</span>
-        <time>{{ post.created_at }}</time>
-    </header>
+<article class="post-view" id="post-{{ post.id }}" style="--post-id: post-{{ post.id }};">
+    {% cache 3600, 'post', (post.id | string), (post.updated_at | string) %}
+        <header class="__header">
+            <a href="{{ url_for('post.view', post_id=post.id) }}">@{{ post.user.display_name }}</a>
+            <span>&#8226;</span>
+            <a href="{{ url_for('post.view', post_id=post.id) }}">{{ post.topic.name }}</a>
+            <span>&#8226;</span>
+            <time 
+                datetime="{{ post.created_at.isoformat() }}" 
+                title="{{ post.created_at.strftime('%d %B %Y at %H:%M') }}"
+            >
+                {{ post.created_at|naturaltime }}
+            </time>
+        </header>
 
-    <div class="__title">
-        <h1>{{ post.title }}</h1>
-    </div>
+        <div class="__title">
+            <h1>{{ post.title | escape }}</h1>
+        </div>
 
-    {% if post.body %}
-    <p>{{ post.body }}</p>
-    {% endif %}
+        {% if post.body %}
+            <p>{{ post.body | escape }}</p>
+        {% endif %}
+    {% endcache %}
 
     <footer class="__actions">
         {% with user_reaction=user_reaction %}
             {% include "components/posts/reaction_buttons.html" %}
+        {% endwith %}
+        {% cache 3600, 'share-buttons' %}
             <button
                 class="variant-secondary"
                 id="share-button"
@@ -38,14 +47,9 @@
                 </svg>
                 Share
             </button>
-        {% endwith %}
+        {% endcache %}
         {% with parent_id=post.id %}
-            <button hx-nonce="{{ g.csp_nonce }}" id="reply-to-post-btn-{{ parent_id }}" class="variant-secondary {% if small %} small {% endif %}" hx-get="/reply/create/{{ parent_id }}" hx-target="#reply-to-post-btn-{{ parent_id }}" hx-swap="outerHTML">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="var(--color-foreground)" width="16" height="16">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
-                </svg>
-                Reply
-            </button>
+            {% include "/components/posts/replies/reply_form.html" %}
         {% endwith %}
     </footer>
 </article>

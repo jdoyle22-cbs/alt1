@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% from "/components/form/submit_button.html" import submit_button %}
+
+{% block header %}
+<h1>{% block title %}Create Topic{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+<form     
+    hx-post="{{ url_for('create.create_topic') }}"
+    hx-target="#error"
+    hx-swap="innerHTML"
+    hx-nonce="{{ g.csp_nonce }}"
+>
+    {% cache 3600, 'create_topic_form_structure' %}
+        <div>
+            <label for="name">Name</label>
+            <input type="text" name="name" id="name" class="width-full" required>
+        </div>
+
+        <div>
+            <label for="description">Description</label>
+            <input type="text" name="description" id="description" class="width-full" maxlength="200" required>
+        </div>
+
+        <div id="error"></div>
+
+        {{ submit_button() }}
+    {% endcache %}
+</form>
+{% endblock %}

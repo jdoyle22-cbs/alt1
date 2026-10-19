@@ -1,16 +1,6 @@
 {% extends 'base.html' %}
 {% from 'components/pagination.html' import render_pagination %}
 
-{% block head %}
-<style nonce="{{ g.csp_nonce }}">
-    {% for post in page %}
-        #post-{{ post.id }} {
-            view-transition-name: post-{{ post.id }};
-        }
-    {% endfor %}
-</style>
-{% endblock %}
-
 {% block header %}
 <h1>{% block title %}Home{% endblock %}</h1>
 {% endblock %}

@@ -19,7 +19,11 @@
         </div>
     {% else %}
         {% for post in page %}
+            <style nonce="{{ g.csp_nonce }}">
+                #post-{{ post.id }} { view-transition-name: post-{{ post.id }}; }
+            </style>
             {% include "components/posts/post_card.html" with context %}
+            <hr />
         {% endfor %}    
         {{ render_pagination(page, 'index') }}
     {% endif %}

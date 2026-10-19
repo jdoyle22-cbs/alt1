@@ -1,25 +1,71 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 
 <head>
     <title>{% block title %}{% endblock %} - Social Site</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='/css/base.css') }}">
-    <!-- 
-        Load HTMX and it's extensions.
-        For debugging purposes, the full files are used. 
-        Minified files should be used in production.
-        -->
-    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='/js/htmax.js') }}"></script>
-    <script nonce="{{ g.csp_nonce }}">
-        htmx.config.safeEval = true;
-        htmx.config.transitions = true;
-    </script>
+    <link rel="preload" href="{{ url_for('static', filename='css/base.css') }}" as="style">
+    <!--  Load HTMX and it's extensions. -->
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/htmx.min.js') }}" defer></script>
     <!-- CSP (Content Security Policy) support for HTMX -->
-    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='/js/hx-csp.js') }}"></script>
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-csp.min.js') }}" defer></script>
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-live.min.js') }}" defer></script>
+    <!--<script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-download.min.js') }}" defer></script>-->
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-preload.min.js') }}" defer></script>
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/socket.io.min.js') }}" defer></script>
+
+    <script nonce="{{ g.csp_nonce }}">
+        document.addEventListener("DOMContentLoaded", () => {
+            const currentPath = window.location.pathname;
+            
+            document.querySelectorAll('.mobile-nav .links a').forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            document.querySelectorAll('.sidebar_links .links a').forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+    </script>
+
+    <script nonce="{{ g.csp_nonce }}">
+        console.info(`
+            \x1B[41;1m┌───────────────────────────────┐\x1B[m 
+            \x1B[41;1m│  ____  _____  ___   ____   _  │\x1B[m 
+            \x1B[41;1m│ / ___||_   _|/ _ \\ |  _ \\ | | │\x1B[m 
+            \x1B[41;1m│ \\___ \\  | | | | | || |_) || | │\x1B[m 
+            \x1B[41;1m│  ___) | | | | |_| ||  __/ |_| │\x1B[m 
+            \x1B[41;1m│ |____/  |_|  \\___/ |_|    (_) │\x1B[m 
+            \x1B[41;1m└───────────────────────────────┘\x1B[m 
+
+           Do you know what you're doing here?
+                If you don't, leave now.
+
+If anyone is asking you for information from this panel, 
+       they are trying to compromise your account.
+
+    \x1B[41;1m \u26A0 If you are certain you know what you are doing, \x1B[m 
+    \x1B[41;1m    you may proceed at your own risk.               \x1B[m
+        `)
+    </script>
+
+    <link nonce="{{ g.csp_nonce }}" rel="preload" href="/static/fonts/DMSans/dm-sans-v17-latin-500.woff2" as="font" type="font/woff2" crossorigin>
+    <link nonce="{{ g.csp_nonce }}" rel="preload" href="/static/fonts/DMSans/dm-sans-v17-latin-600.woff2" as="font" type="font/woff2" crossorigin>
+    <link nonce="{{ g.csp_nonce }}" rel="preload" href="/static/fonts/DMSans/dm-sans-v17-latin-800.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <meta name="htmx-config" content='{"safeEval":true, "transitions":true}'>
     <meta name="description" content="Flask Social Media Site">
     <meta name="keywords" content="Social, Media, Social Media">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
     <meta
         name="htmx-config"
         content='{"extensions":"hx-csp","safeEval":"true"}'
@@ -28,26 +74,28 @@
 </head>
 
 <body hx-ext="hx-csp" hx-nonce="{{ g.csp_nonce }}">
-    <dialog id="auth_dialog">
-        <div class="__header">
-            <h1>You need to login to do that</h1>
-            <p>Login to like and dislike, reply, post and more.</p>        
-        </div>
-        <div class="__footer">
-            <a class="button variant-primary" href="{{ url_for('auth.login') }}">Login</a>
-            <button class="variant-secondary" command="close" commandfor="auth_dialog">Close</button>
-        </div>
-    </dialog>
-    {% include "components/navbar.html" %}
-    {% include "components/nav-mobile.html" %}
-    <main>
-        {% if not hide_header %}
-            <header class="page-header">
-                {% block header %}{% endblock %}
-            </header>
-        {% endif %}
-        {% block content %}{% endblock %}
-    </main>
+    {% include "components/navigation/sidebar.html" %}
+    <div>
+        <dialog id="auth_dialog">
+            <div class="__header">
+                <h1>You need to login to do that</h1>
+                <p>Login to like and dislike, reply, post and more.</p>        
+            </div>
+            <div class="__footer">
+                <a class="button variant-primary" href="{{ url_for('auth.login') }}">Login</a>
+                <button class="variant-secondary" command="close" commandfor="auth_dialog">Close</button>
+            </div>
+        </dialog>
+        {% include "components/navigation/navbar.html" %}
+        <main>
+            {% if not hide_header %}
+                <header class="page-header">
+                    {% block header %}{% endblock %}
+                </header>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </main>    
+    </div>
 </body>
 
 </html>

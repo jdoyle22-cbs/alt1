@@ -1,5 +1,118 @@
 {% extends 'base.html' %}
 
+{% block head %}
+<style nonce="{{ g.csp_nonce }}">
+    body {
+        overflow: hidden;
+        height: 100dvh; 
+    }
+</style>
+
+<script nonce="{{ g.csp_nonce }}">
+    console.log("script loaded")
+    var last_messaging_username = "";
+
+    const socket = io("/chat", { transports: ["websocket", "polling"] });
+    const chatId = {{ chat_id | tojson }};
+    console.log("Initial chat ID:", chatId);
+
+    socket.on("connect", () => {
+        console.log("Socket connected:", socket.id);
+        console.log(chatId)
+        socket.emit("join", { chat_id: chatId });
+    });
+
+    socket.on("connect_error", (error) => {
+        console.error("Socket connection error object:", error);
+        console.error("Message:", error.message);
+        console.error("Description:", error.description);
+        console.error("Context:", error.context);
+    });
+
+    socket.on("disconnect", (reason) => {
+        console.warn("Socket disconnected:", reason);
+    });
+
+    socket.on("message", (data) => {
+        const message_template = document.getElementById("message-template");
+        const message = message_template.content.cloneNode(true);
+
+        if (last_messaging_username !== data.username) {
+            const bytes = new Uint8Array(data.profile_picture);
+            let binary = "";
+
+            for (const byte of bytes) {
+                binary += String.fromCharCode(byte);
+            }
+
+            const imageSrc = `data:image/png;base64,${btoa(binary)}`;
+
+            const user_template = document.getElementById("user-header-template");
+            const user_header = user_template.content.cloneNode(true);
+
+            user_header.querySelector("img").src = imageSrc;
+            user_header.querySelector(".message-username").textContent = data.username;
+            user_header.querySelector(".message-username").href = `/users/${data.username}`;
+            if (data.username == "{{ g.user.username }}") {
+                user_header.querySelector(".user_header").classList.add('self');
+            }
+
+            document.getElementById("messages").appendChild(user_header);
+        }
+
+        if (!(last_messaging_username !== data.username)) {
+            message.querySelector(".message").classList.add("no-arrow");
+        }
+
+        if (data.username == "{{ g.user.username }}") {
+            message.querySelector(".message").classList.add('self');
+        }
+
+        message.querySelector(".message-text").textContent = data.text;
+
+        last_messaging_username = data.username
+        document.getElementById("messages").appendChild(message);
+        messages.scrollTop = messages.scrollHeight;
+    });
+
+    // Error Handling
+    const error_container = document.getElementById("error");
+    const error_paragraph = document.createElement("p");
+    error_paragraph.classList.add("form-message")
+    error_paragraph.classList.add("error")
+
+    socket.on("persist_error", (data) => {
+        error_paragraph.textContent = "Failed to save chat - these messages may be lost when exiting.";
+        error_container.appendChild(paragraph);
+    });
+
+    socket.on("chat_error", (data) => {
+        error_paragraph.textContent = "Your chat connection has been interrupted. Messages may not send or appear in real time. Check your internet connection, then try reconnecting to the chat. If the problem persists, refresh the page. Messages that failed to send may need to be sent again.";
+        error_container.appendChild(paragraph);
+    })
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("send-button").addEventListener("click", () => {
+            const input = document.getElementById("msg");
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            try {
+                socket.emit("message", {
+                    chat_id: chatId,
+                    message: message
+                });
+            } catch (e) {
+                console.log(e)
+            }
+
+            input.value = "";
+        });
+    })
+</script>
+{% endblock %}
+
 {% block header %}
 <a
     href="{{ url_for('chat.chat_index') }}"
@@ -13,7 +126,23 @@
 {% endblock %}
 
 {% block content %}
+<template id="message-template">
+    <div class="message">
+        <p class="message-text"></p>
+    </div>
+</template>
+<template id="user-header-template">
+    <div class="user_header">
+        <img width="16" height="16" />
+        <a class="message-username" href=""></a>
+    </div>
+</template>
 <div class="chat">
-    <p>wip</p>
+    <div id="messages"></div>
+    <div id="error"></div>
+    <div class="send">
+        <input id="msg" type="text" placeholder="Enter your message">
+        <button class="variant-primary" hx-nonce="{{ g.csp_nonce }}" id="send-button" type="button">Send</button>
+    </div>
 </div>
 {% endblock %}

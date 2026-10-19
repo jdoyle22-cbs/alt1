@@ -1,9 +1,10 @@
+import base64
+
 from flask import Blueprint, g, redirect, render_template, request, url_for
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from social_site import db
 from social_site.models import Chat, Post, Topic, User
-
 
 bp = Blueprint('create', __name__, url_prefix='/create')
 
@@ -45,12 +46,84 @@ def create_post():
             else:
                 return redirect(url_for("index"))
 
-        return render_template("/components/text-error.html", message=error)
+        return render_template("/components/form-message.html", message=error)
 
     elif request.method == "GET":
         return render_template("/create/create_post.html")
 
-    return render_template("/components/text-error.html", message="test")
+    return render_template(
+        "/components/form-message.html",
+        message="Please specify a HTTP method of GET or POST.",
+        error=True
+    )
+
+
+@bp.route("/topic", methods=["GET", "POST"])
+def create_topic():
+    if not g.user:
+        return redirect(url_for("auth.login"))
+
+    if request.method == "GET":
+        return render_template("/create/create_topic.html")
+
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        description = request.form.get("description", "").strip()
+
+        if not name:
+            error = "Please provide a name."
+            return render_template(
+                "/components/form-message.html", message=error, error=True
+            )
+
+        if not description:
+            error = "Please provide a description."
+            return render_template(
+                "/components/form-message.html", message=error, error=True
+            )
+
+        if len(description) > 200:
+            return render_template("/components/form-message.html", message="Description must be equal to or less than 200 characters.", error=True)
+
+        image_bytes = base64.b64decode(g.user.profile_picture)
+        g.user.profile_picture = image_bytes
+
+        try:
+            topic = Topic(
+                name=name,
+                description=description,
+                members=[g.user],
+            )
+
+            db.session.add(topic)
+            db.session.commit()
+
+        except IntegrityError:
+            return render_template(
+                "/components/form-message.html",
+                message="That name is already taken.",
+                error=True
+            )
+        
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print("[ERR] [DB] Creation of record type TOPIC failed:", e)
+            return render_template(
+                "/components/form-message.html",
+                message="Sorry, something went wrong.",
+                error=True
+            )
+
+        return render_template(
+            "/components/form-message.html",
+            message="Topic was created successfully.",
+        )
+
+    return render_template(
+        "/components/form-message.html",
+        message="Please specify a HTTP method of GET or POST.",
+        error=True
+    )
 
 
 @bp.route("/chat", methods=["GET", "POST"])
@@ -68,14 +141,17 @@ def create_chat():
         if not raw_member_ids:
             error = "Please invite at least one member."
             return render_template(
-                "/components/text-error.html", message=error
+                "/components/form-message.html", message=error
             )
 
         if not title:
             error = "Please provide a title."
             return render_template(
-                "/components/text-error.html", message=error
+                "/components/form-message.html", message=error
             )
+
+        if len(title) > 50:
+            return render_template("/components/form-message.html", message="Title must be equal to or less than 50 characters.")
 
         try:
             # Parse and validate the submitted IDs.
@@ -87,13 +163,13 @@ def create_chat():
                 }
             except ValueError:
                 return render_template(
-                    "/components/text-error.html",
+                    "/components/form-message.html",
                     message="Member IDs must be integers.",
                 )
 
             if not member_ids:
                 return render_template(
-                    "/components/text-error.html",
+                    "/components/form-message.html",
                     message="Please invite at least one valid member.",
                 )
 
@@ -103,7 +179,7 @@ def create_chat():
 
             if len(users) != len(member_ids):
                 return render_template(
-                    "/components/text-error.html",
+                    "/components/form-message.html",
                     message="One or more users invited do not exist.",
                 )
 
@@ -124,13 +200,14 @@ def create_chat():
             db.session.rollback()
             print("[ERR] [DB] Creation of record type CHAT failed:", e)
             return render_template(
-                "/components/text-error.html",
+                "/components/form-message.html",
                 message="Sorry, something went wrong.",
             )
 
         return redirect(url_for("index"))
 
     return render_template(
-        "/components/text-error.html",
+        "/components/form-message.html",
         message="Please specify a HTTP method of GET or POST.",
+        error=True
     )

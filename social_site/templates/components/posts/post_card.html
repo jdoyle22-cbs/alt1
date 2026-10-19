@@ -2,35 +2,44 @@
 <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/share.js') }}" defer></script>
 {% endblock %}
 
-<article class="post-card transition-test" id="post-{{ post.id }}">
-    <header class="__header">
-        <a href="{{ url_for('post.view', post_id=post.id) }}">@{{ post.user.display_name }}</a>
-        <span>&#8226;</span>
-        <a href="{{ url_for('post.view', post_id=post.id) }}">{{ post.topic.name }}</a>
-        <span>&#8226;</span>
-        <time>{{ post.created_at }}</time>
-    </header>
+<article class="post-card" id="post-{{ post.id }}" style="--post-id: post-{{ post.id }};">
+    {% cache 3600, 'post', (post.id | string), (post.updated_at | string) %}
+        <header class="__header">
+            <a href="{{ url_for('post.view', post_id=post.id) }}">@{{ post.user.display_name }}</a>
+            <span>&#8226;</span>
+            <a href="{{ url_for('post.view', post_id=post.id) }}">{{ post.topic.name }}</a>
+            <span>&#8226;</span>
+            <time 
+                datetime="{{ post.created_at.isoformat() }}" 
+                title="{{ post.created_at.strftime('%d %B %Y at %H:%M') }}"
+            >
+                {{ post.created_at|naturaltime }}
+            </time>
+        </header>
 
-    <a class="__title" href="{{ url_for('post.view', post_id=post.id) }}">
-        <h1>{{ post.title }}</h1>
-    </a>
+        <a class="__title" href="{{ url_for('post.view', post_id=post.id) }}">
+            <h1>{{ post.title|escape|truncate(105, False, '...', 0) }}</h1>
+        </a>
 
-    {% if post.body %}
-    <p>{{ post.body }}</p>
-    {% endif %}
+        {% if post.body %}
+            <p class="preview">{{ post.body|escape|truncate(260, False, '...', 0) }}</p>
+        {% endif %}
+    {% endcache %}
 
     <footer class="__actions">
         {% include "components/posts/reaction_buttons.html" %}
-        <button
-            class="variant-secondary"
-            id="share-button"
-            data-title="{{ post.title }}"
-            data-url="{{ request.url }}"
-        >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="var(--color-foreground)" height="16" width="16">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
-            </svg>
-            Share
-        </button>
+        {% cache 3600, 'share-buttons' %}
+            <button
+                class="variant-secondary"
+                id="share-button"
+                data-title="{{ post.title }}"
+                data-url="{{ request.url }}"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="var(--color-foreground)" height="16" width="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
+                </svg>
+                Share
+            </button>
+        {% endcache %}
     </footer>
 </article>

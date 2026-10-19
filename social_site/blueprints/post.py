@@ -10,7 +10,7 @@ def view(post_id: int):
     post = db.session.get(Post, post_id)
 
     if post is None:
-        abort(404)
+        return render_template('error/404.html', hide_header=True), 404
 
     reaction = None
 
