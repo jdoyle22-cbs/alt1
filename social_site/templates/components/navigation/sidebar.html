@@ -4,6 +4,10 @@
         <button hx-on:click="data.active = !data.active" hx-nonce="{{ g.csp_nonce }}" class="variant-ghost icon" aria-label="Toggle Sidebar">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg>
         </button>
+        {# WORKING hx-on:click="
+        htmx.live.q(this).closest.data.active =
+            !htmx.live.q(this).closest.data.active
+    " #}
     </div>
         <div class="sidebar_links main">
             <div class="links">
