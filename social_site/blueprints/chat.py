@@ -2,7 +2,7 @@ from flask import Blueprint, g, redirect, render_template, request, session, url
 from flask_socketio import emit, join_room, leave_room
 from sqlalchemy.exc import SQLAlchemyError
 
-from social_site.extensions import socketio, cache, make_user_cache_key
+from social_site.extensions import socketio
 
 from social_site import db
 from social_site.models import Chat, ChatMessage, User
@@ -10,8 +10,6 @@ from social_site.models import Chat, ChatMessage, User
 
 bp = Blueprint('chat', __name__, url_prefix='/chat')
 
-# TO-DO: Make sure this cache is invalidated
-@cache.memoize(timeout=10000)
 def get_member_chat(chat_id: int, user: User):
     chat = db.session.get(Chat, chat_id)
 
@@ -24,9 +22,6 @@ def get_member_chat(chat_id: int, user: User):
     return chat
 
 @bp.route("/")
-# DO NOT CACHE - Breaks CSP
-# I tried memoisation with a different function, couldn't get caching to work with pagination
-# @cache.cached(timeout=60, make_cache_key=make_user_cache_key)
 def chat_index():
     if not g.user:
         return redirect(url_for("auth.login"))

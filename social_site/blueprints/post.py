@@ -7,22 +7,10 @@ bp = Blueprint('post', __name__, url_prefix='/post')
 
 @bp.route('/<int:post_id>', methods=['GET'])
 def view(post_id: int):
-    post = db.session.get(Post, post_id)
+    #if post is None:
+    #    return render_template('error/404.html', hide_header=True), 404
 
-    if post is None:
-        return render_template('error/404.html', hide_header=True), 404
-
-    reaction = None
-
-    if g.user is not None:
-        reaction = db.session.scalar(
-            db.select(Reaction).filter_by(
-                post_id=post.id,
-                user_id=g.user.id,
-            )
-        )
-
-    return render_template('post.html', post=post, user_reaction=reaction)
+    return render_template('post.html', post_id=post_id)
 
 @bp.post("/<int:post_id>/react/<string:reaction_type>")
 def react(post_id: int, reaction_type: str):

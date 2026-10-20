@@ -14,7 +14,6 @@
     hx-swap="innerHTML"
     hx-nonce="{{ g.csp_nonce }}"
 >
-    {% cache 3600, 'create_topic_form_structure' %}
         <div>
             <label for="name">Name</label>
             <input type="text" name="name" id="name" class="width-full" required>
@@ -28,6 +27,5 @@
         <div id="error"></div>
 
         {{ submit_button() }}
-    {% endcache %}
 </form>
 {% endblock %}

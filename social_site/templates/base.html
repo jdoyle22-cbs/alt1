@@ -4,7 +4,7 @@
 
 <head>
     <title>{% block title %}{% endblock %} - Social Site</title>
-    <link rel="preload" href="{{ url_for('static', filename='css/base.css') }}" as="style">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" as="style">
     <!--  Load HTMX and it's extensions. -->
     <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/htmx.min.js') }}" defer></script>
     <!-- CSP (Content Security Policy) support for HTMX -->
@@ -12,7 +12,10 @@
     <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-live.min.js') }}" defer></script>
     <!--<script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-download.min.js') }}" defer></script>-->
     <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-preload.min.js') }}" defer></script>
-    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/socket.io.min.js') }}" defer></script>
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/socket.io.min.js') }}"></script>
+    
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/toast.js') }}" type="module" defer></script>
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/share.js') }}" defer></script>
 
     <script nonce="{{ g.csp_nonce }}">
         document.addEventListener("DOMContentLoaded", () => {
@@ -61,19 +64,19 @@ If anyone is asking you for information from this panel,
     <link nonce="{{ g.csp_nonce }}" rel="preload" href="/static/fonts/DMSans/dm-sans-v17-latin-600.woff2" as="font" type="font/woff2" crossorigin>
     <link nonce="{{ g.csp_nonce }}" rel="preload" href="/static/fonts/DMSans/dm-sans-v17-latin-800.woff2" as="font" type="font/woff2" crossorigin>
     
-    <meta name="htmx-config" content='{"safeEval":true, "transitions":true}'>
+    <meta name="htmx-config" content='{"extensions":"hx-csp,live,preload","safeEval":true,"transitions":true}'>
     <meta name="description" content="Flask Social Media Site">
     <meta name="keywords" content="Social, Media, Social Media">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <meta
         name="htmx-config"
-        content='{"extensions":"hx-csp","safeEval":"true"}'
+        content='{"extensions": ["hx-csp", "hx-live", "live", "hx-download"], "safeEval":"true", "transition": "true"}'
     >
     {% block head %}{% endblock %}
 </head>
 
-<body hx-ext="hx-csp" hx-nonce="{{ g.csp_nonce }}">
+<body hx-ext="hx-csp, hx-live, hx-download, live" hx-nonce="{{ g.csp_nonce }}">
     {% include "components/navigation/sidebar.html" %}
     <div>
         <dialog id="auth_dialog">
@@ -96,6 +99,8 @@ If anyone is asking you for information from this panel,
             {% block content %}{% endblock %}
         </main>    
     </div>
+    <div id="toast-container" hx-nonce="{{ g.csp_nonce }}" hx-on="toast from:body -> addToast(message)"></div>
+    <div role="status" aria-live="polite" class="toast" id="toast">Link copied. It opens this exact page.</div>
 </body>
 
 </html>

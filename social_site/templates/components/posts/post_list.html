@@ -1,3 +1,5 @@
+{% from "/components/pagination.html" import render_pagination %}
+
 <div class="post-list">
     {% if page.total == 0 %}
         <div class="card-error">

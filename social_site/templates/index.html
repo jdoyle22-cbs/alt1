@@ -1,10 +1,27 @@
 {% extends 'base.html' %}
-{% from 'components/pagination.html' import render_pagination %}
 
 {% block header %}
 <h1>{% block title %}Home{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-{% include "/components/posts/post_list.html" with context %}
+    <div 
+        hx-get="{{ url_for('fetch.fetch_htmx_feed') }}" 
+        hx-trigger="load" 
+        hx-swap="outerHTML"
+        hx-nonce="{{ g.csp_nonce }}"
+    >
+        <div class="post-list">
+            <div class="skeleton-post"></div>
+            <div class="skeleton-post"></div>
+            <div class="skeleton-post"></div>
+            <div class="skeleton-post"></div>
+            <div class="skeleton-post"></div>
+            <div class="skeleton-post"></div>
+            <div class="skeleton-post"></div>
+            <div class="skeleton-post"></div>
+            <div class="skeleton-post"></div>
+            <div class="skeleton-post"></div>
+        </div>
+    </div>
 {% endblock %}

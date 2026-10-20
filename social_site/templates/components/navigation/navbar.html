@@ -5,7 +5,6 @@
 {% endif %}
 
 <nav class="navbar">
-    {% cache 3600, 'navbar' %}
         {# This is here to push the searchbar to the middle #}
         <div aria-hidden="true" class="hide-mobile"></div>
         <div class="hide-desktop">
@@ -21,8 +20,6 @@
                 </form>
             </div>
         </div>
-    {% endcache %}
-    {% cache 600, 'navbar_account', navbar_key %}
         <div class="account">
             {% if g.user %}
                 <a class="button variant-ghost {% if request.path == '/create' %} active {% endif %}" href="{{ url_for('create.create_post') }}">
@@ -61,10 +58,9 @@
                 </div>
             {% endif %}
         </div>
-    {% endcache %}
 </nav>
 
-{% cache 3600, 'mobile-sidebar' %}
+
     <div class="mobile-nav hide-desktop" id="mobile-nav" popover>
         <div class="main">
             <div class="__header">
@@ -97,4 +93,3 @@
             </div>    
         </div>
     </div>
-{% endcache %}

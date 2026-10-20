@@ -5,7 +5,6 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg>
         </button>
     </div>
-    {% cache 3600, 'sidebar_links' %}
         <div class="sidebar_links main">
             <div class="links">
                 <a href="{{ url_for('index') }}" aria-label="Go to Home page" hx-preload="mouseover" class="button variant-ghost {% if request.path == '/' %} active {% endif %}">
@@ -30,5 +29,4 @@
                 </a>
             </div>
         </div>
-    {% endcache %}
 </nav>

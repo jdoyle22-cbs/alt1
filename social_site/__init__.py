@@ -5,7 +5,7 @@ import secrets
 
 from dotenv import load_dotenv
 import humanize
-from social_site.extensions import socketio, compress, cache
+from social_site.extensions import socketio, compress
 
 from social_site.db import db, init_db_command
 from social_site.models import Post
@@ -25,9 +25,6 @@ def create_app():
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_SECURE=False,  # Only when using HTTPS
-        # Flask-Cache
-        CACHE_TYPE="SimpleCache",
-        CACHE_DEFAULT_TIMEOUT=300,
         COMPRESS_ALGORITHM=["br", "gzip", "deflate"],
         COMPRESS_ALGORITHM_STREAMING=["br", "deflate"],
         COMPRESS_BR_LEVEL=5
@@ -48,7 +45,7 @@ def create_app():
         # See MDN Web Docs: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            f"script-src 'self' 'unsafe-inline' 'nonce-{nonce}'; "
+            f"script-src 'self' 'nonce-{nonce}'; "
             f"style-src 'self' 'nonce-{nonce}'; "
             "style-src-attr 'unsafe-inline'; "
             "connect-src 'self' https://localhost ws://localhost wss://localhost; "
@@ -82,14 +79,7 @@ def create_app():
 
     @app.route('/')
     def index():
-        page = db.paginate(
-            db.select(Post).order_by(Post.created_at.desc()),
-            page=int(request.args.get("page", 1)),
-            per_page=10,
-            error_out=False,
-        )
-            
-        return render_template('index.html', page=page)
+        return render_template('index.html')
 
     # Error handlers
     @app.errorhandler(NotFound)
@@ -109,21 +99,18 @@ def create_app():
     app.cli.add_command(init_db_command)
 
     # Blueprints
-    from .blueprints import auth, post, reply, create, chat
+    from .blueprints import auth, post, reply, create, chat, fetch
     app.register_blueprint(auth.bp)
     app.register_blueprint(post.bp)
     app.register_blueprint(reply.bp)
     app.register_blueprint(create.bp)
     app.register_blueprint(chat.bp)
+    app.register_blueprint(fetch.bp)
 
     # Init
     db.init_app(app)
     socketio.init_app(app)
     compress.init_app(app)
-    cache.init_app(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 300})
-
-    # Make sure it's cleared for dev purposes
-    cache.clear()
 
     # Proxy
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)

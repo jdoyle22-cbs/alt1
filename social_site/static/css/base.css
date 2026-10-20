@@ -1,6 +1,6 @@
 :root {
     --spacing: 0.25rem;
-    --border-radius: 0.5rem;
+    --border-radius: 10px;
 
     --color-accent: #598bee;
     --color-background: #ffffff;
@@ -22,6 +22,8 @@
     --color-btn-primary-active: color-mix(in oklab, var(--color-btn-primary-hover), white 10%);
 
     --animation-timing-slide: cubic-bezier(0.16, 1, 0.3, 1);
+    --animation-spring: linear(0, .12 4.5%, .48 12.3%, .86 21%, 1.04 29.6%, 1.07 35%, 1.04 45%, 1 56%, .995 70%, 1);
+    --animation-duration: 0.25s;
 
     --box-shadow-focus: 0px 0px 0px 3px rgb(from var(--color-accent) r g b / 100%);
 }
@@ -71,9 +73,42 @@
     /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
 }
 
+/* google-sans-flex-regular - latin_latin-ext */
+@font-face {
+    font-display: swap;
+    /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Google Sans Flex';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/GoogleSans/google-sans-flex-v23-latin_latin-ext-regular.woff2') format('woff2');
+    /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* google-sans-flex-600 - latin_latin-ext */
+@font-face {
+    font-display: swap;
+    /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Google Sans Flex';
+    font-style: normal;
+    font-weight: 600;
+    src: url('../fonts/GoogleSans/google-sans-flex-v23-latin_latin-ext-600.woff2') format('woff2');
+    /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* google-sans-flex-800 - latin_latin-ext */
+@font-face {
+    font-display: swap;
+    /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Google Sans Flex';
+    font-style: normal;
+    font-weight: 800;
+    src: url('../fonts/GoogleSans/google-sans-flex-v23-latin_latin-ext-800.woff2') format('woff2');
+    /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
 * {
     box-sizing: border-box;
-    font-family: "DM Sans", sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: "Google Sans Flex", sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 html {
@@ -88,6 +123,7 @@ body {
     flex-direction: row;
     align-items: center;
     height: 100%;
+    line-height: 1.5;
 
     &>div {
         display: flex;
@@ -228,10 +264,10 @@ main {
     transform: translateX(-100%);
 
     transition:
-        opacity 250ms var(--animation-timing-slide),
-        transform 250ms var(--animation-timing-slide),
-        display 250ms allow-discrete,
-        overlay 250ms allow-discrete;
+        opacity var(--animation-duration) var(--animation-timing-slide),
+        transform var(--animation-duration) var(--animation-timing-slide),
+        display var(--animation-duration) allow-discrete,
+        overlay var(--animation-duration) allow-discrete;
 
     &:not(.__header) {
         & .account {
@@ -356,8 +392,8 @@ main {
 
     width: 59px;
     transition:
-        width 250ms var(--animation-timing-slide),
-        opacity 250ms var(--animation-timing-slide);
+        width var(--animation-duration) var(--animation-timing-slide),
+        opacity var(--animation-duration) var(--animation-timing-slide);
 
     & .__header {
         display: flex;
@@ -380,10 +416,10 @@ main {
             opacity: 0;
             margin: 0;
             transition:
-                flex-basis 250ms var(--animation-timing-slide),
-                width 250ms var(--animation-timing-slide),
-                opacity 250ms var(--animation-timing-slide),
-                display 0ms var(--animation-timing-slide) 250ms allow-discrete;
+                flex-basis var(--animation-duration) var(--animation-timing-slide),
+                width var(--animation-duration) var(--animation-timing-slide),
+                opacity var(--animation-duration) var(--animation-timing-slide),
+                display 0ms var(--animation-timing-slide) var(--animation-duration) allow-discrete;
         }
     }
 
@@ -403,8 +439,8 @@ main {
                 visibility: hidden;
                 opacity: 0;
                 transition:
-                    opacity 250ms var(--animation-timing-slide),
-                    visibility 0s var(--animation-timing-slide) 250ms;
+                    opacity var(--animation-duration) var(--animation-timing-slide),
+                    visibility 0s var(--animation-timing-slide) var(--animation-duration);
             }
         }
     }
@@ -428,7 +464,7 @@ main {
                 visibility: visible;
                 opacity: 1;
                 transition:
-                    opacity 250ms var(--animation-timing-slide),
+                    opacity var(--animation-duration) var(--animation-timing-slide),
                     visibility 0s var(--animation-timing-slide) 0s;
             }
         }
@@ -440,9 +476,9 @@ main {
                 display: flex;
                 opacity: 1;
                 transition:
-                    flex-basis 250ms var(--animation-timing-slide),
-                    width 250ms var(--animation-timing-slide),
-                    opacity 250ms var(--animation-timing-slide),
+                    flex-basis var(--animation-duration) var(--animation-timing-slide),
+                    width var(--animation-duration) var(--animation-timing-slide),
+                    opacity var(--animation-duration) var(--animation-timing-slide),
                     display 0s var(--animation-timing-slide) 0s allow-discrete;
             }
         }
@@ -470,7 +506,7 @@ main {
     background-color: var(--color-card-bg);
     /*border: 1px solid var(--color-border);*/
     border-radius: var(--border-radius);
-    transition: all 250ms var(--animation-timing-slide);
+    transition: all var(--animation-duration) var(--animation-timing-slide);
     padding: calc(var(--spacing) * 4);
 
     & .__header {
@@ -484,7 +520,7 @@ main {
 
         & a {
             color: var(--color-secondary);
-            transition: all 250ms var(--animation-timing-slide);
+            transition: all var(--animation-duration) var(--animation-timing-slide);
             text-decoration: none;
 
             &:hover,
@@ -713,7 +749,7 @@ button,
 }
 
 ::view-transition-group(*) {
-    animation-duration: 250ms;
+    animation-duration: var(--animation-duration);
     animation-timing-function: var(--animation-timing-slide);
     z-index: 999;
 }
@@ -744,7 +780,7 @@ button,
     background-color: var(--color-card-bg);
     /*border: 1px solid var(--color-border);*/
     border-radius: var(--border-radius);
-    transition: all 250ms var(--animation-timing-slide);
+    transition: all var(--animation-duration) var(--animation-timing-slide);
     padding: calc(var(--spacing) * 4);
 
     & .__header {
@@ -758,7 +794,7 @@ button,
 
         & a {
             color: var(--color-secondary);
-            transition: all 250ms var(--animation-timing-slide);
+            transition: all var(--animation-duration) var(--animation-timing-slide);
             text-decoration: none;
 
             &:hover,
@@ -834,10 +870,10 @@ dialog {
     transform: scale(0.9);
 
     transition:
-        opacity 250ms var(--animation-timing-slide),
-        transform 250ms var(--animation-timing-slide),
-        display 250ms allow-discrete,
-        overlay 250ms allow-discrete;
+        opacity var(--animation-duration) var(--animation-timing-slide),
+        transform var(--animation-duration) var(--animation-timing-slide),
+        display var(--animation-duration) allow-discrete,
+        overlay var(--animation-duration) allow-discrete;
 
     & .__header {
         display: flex;
@@ -864,10 +900,10 @@ dialog {
         background: hsl(0 0 0 / 0);
         backdrop-filter: blur(0);
         transition:
-            background 250ms var(--animation-timing-slide),
-            backdrop-filter 250ms var(--animation-timing-slide),
-            display 250ms allow-discrete,
-            overlay 250ms allow-discrete;
+            background var(--animation-duration) var(--animation-timing-slide),
+            backdrop-filter var(--animation-duration) var(--animation-timing-slide),
+            display var(--animation-duration) allow-discrete,
+            overlay var(--animation-duration) allow-discrete;
     }
 }
 
@@ -1018,10 +1054,10 @@ menu[popover] {
     transform-origin: top left;
 
     transition:
-        opacity 250ms var(--animation-timing-slide),
-        transform 250ms var(--animation-timing-slide),
-        display 250ms allow-discrete,
-        overlay 250ms allow-discrete;
+        opacity var(--animation-duration) var(--animation-timing-slide),
+        transform var(--animation-duration) var(--animation-timing-slide),
+        display var(--animation-duration) allow-discrete,
+        overlay var(--animation-duration) allow-discrete;
 
     /* Styling */
     flex-direction: column;
@@ -1389,5 +1425,49 @@ form {
         font-weight: 500;
         line-height: 1.4;
         text-decoration: none;
+    }
+}
+
+.post-list:has(.skeleton-post) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+}
+
+.skeleton-post {
+    width: 100%;
+    height: 178px;
+    background: var(--color-border);
+    animation: loading-pulse 1.5s infinite;
+    border-radius: var(--border-radius);
+}
+
+@keyframes loading-pulse {
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 12px;
+    height: fit-content;
+    width: fit-content;
+    background-color: #0b0f0c;
+    color: #e0e0e0;
+    padding: 14px 20px;
+    font-size: 14px !important;
+    max-width: calc(100vw - 32px);
+    transform: translate(-50%, 140%);
+    transition: transform .5s var(--animation-timing-slide), visibility 0s .5s;
+    box-shadow: 0 4px 8px 3px rgb(0 0 0 / .1),
+        0 1px 3px rgb(0 0 0 / .16);
+    border-radius: var(--border-radius);
+
+    &.show {
+        transform: translate(-50%);
+        visibility: visible;
+        transition: transform .5s var(--animation-timing-slide);
     }
 }
