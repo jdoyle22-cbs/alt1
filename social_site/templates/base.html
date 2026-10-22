@@ -3,47 +3,41 @@
 <html lang="en">
 
 <head>
-    <title>{% block title %}{% endblock %} - Social Site</title>
+    <title>{% block title %}{% endblock %} - Wave</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" as="style">
-    
-<meta name="htmx-config"
-      content='{"extensions":"hx-csp","safeEval":true,"transitions":true}'>
+    <!--  Load HTMX and it's extensions. -->
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/htmx.min.js') }}"></script>
+    <!-- CSP (Content Security Policy) support for HTMX -->
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-csp.min.js') }}"></script>
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-live.min.js') }}"></script>
+    <!--<script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-download.min.js') }}" defer></script>-->
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-preload.min.js') }}"></script>
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-browser-indicator.min.js') }}"></script>
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-head.min.js') }}"></script>
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-browser-indicator.min.js') }}"></script>
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/hx-history-cache.min.js') }}"></script>
 
-<script nonce="{{ g.csp_nonce }}"
-        src="{{ url_for('static', filename='js/min/htmx.min.js') }}"
-        defer></script>
-
-<script nonce="{{ g.csp_nonce }}"
-        src="{{ url_for('static', filename='js/min/hx-csp.min.js') }}"
-        defer></script>
-
-<script nonce="{{ g.csp_nonce }}"
-        src="{{ url_for('static', filename='js/min/hx-live.min.js') }}"
-        defer></script>
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/socket.io.min.js') }}"></script>
     
     <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/toast.js') }}" type="module" defer></script>
-    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/share.js') }}" defer></script>
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/share.js') }}" type="module" defer></script>
+    <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/htmx-compat.js') }}" type="module" defer></script>
 
     <script nonce="{{ g.csp_nonce }}">
-        document.addEventListener("DOMContentLoaded", () => {
+        function updateActiveLinks() {
             const currentPath = window.location.pathname;
             
-            document.querySelectorAll('.mobile-nav .links a').forEach(link => {
+            document.querySelectorAll('.mobile-nav .links a, .sidebar_links .links a').forEach(link => {
                 if (link.getAttribute('href') === currentPath) {
                     link.classList.add('active');
                 } else {
                     link.classList.remove('active');
                 }
             });
+        }
 
-            document.querySelectorAll('.sidebar_links .links a').forEach(link => {
-                if (link.getAttribute('href') === currentPath) {
-                    link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
-                }
-            });
-        });
+        document.addEventListener("DOMContentLoaded", updateActiveLinks);
+        document.addEventListener("htmx:after:init", updateActiveLinks);
     </script>
 
     <script nonce="{{ g.csp_nonce }}">
@@ -67,18 +61,22 @@ If anyone is asking you for information from this panel,
         `)
     </script>
 
-    <link nonce="{{ g.csp_nonce }}" rel="preload" href="/static/fonts/DMSans/dm-sans-v17-latin-500.woff2" as="font" type="font/woff2" crossorigin>
-    <link nonce="{{ g.csp_nonce }}" rel="preload" href="/static/fonts/DMSans/dm-sans-v17-latin-600.woff2" as="font" type="font/woff2" crossorigin>
-    <link nonce="{{ g.csp_nonce }}" rel="preload" href="/static/fonts/DMSans/dm-sans-v17-latin-800.woff2" as="font" type="font/woff2" crossorigin>
+    <script nonce="{{ g.csp_nonce }}">
+        htmx.config.safeEval = true;
+        htmx.config.transitions = true;
+        htmx.config.boostBrowserIndicator = true;
+        htmx.config.historyCache.swapStyle = "outerMorph";
+    </script>
     
     <meta name="description" content="Flask Social Media Site">
     <meta name="keywords" content="Social, Media, Social Media">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
+    <link rel="icon" href="{{ url_for('static', filename='metadata/ico.svg') }}" type="image/svg+xml">
     {% block head %}{% endblock %}
 </head>
 
-<body hx-ext="hx-csp,live,preload" hx-nonce="{{ g.csp_nonce }}">
+<body hx-ext="hx-csp, live" hx-nonce="{{ g.csp_nonce }}" hx-boost:inherited="true transition:true">
     {% include "components/navigation/sidebar.html" %}
     <div>
         <dialog id="auth_dialog">
@@ -101,8 +99,7 @@ If anyone is asking you for information from this panel,
             {% block content %}{% endblock %}
         </main>    
     </div>
-    <div id="toast-container" hx-nonce="{{ g.csp_nonce }}" hx-on="toast from:body -> addToast(message)"></div>
-    <div role="status" aria-live="polite" class="toast" id="toast">Link copied. It opens this exact page.</div>
+    <div id="toast-container" hx-nonce="{{ g.csp_nonce }}" hx-preserve="true"></div>
 </body>
 
 </html>

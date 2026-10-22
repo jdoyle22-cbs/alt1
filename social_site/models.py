@@ -206,12 +206,19 @@ class Chat(Base):
     )
 
     title: Mapped[str] = mapped_column(String(100), nullable=False)
-    
+    picture: Mapped[Optional[bytes]] = mapped_column(
+        LargeBinary, nullable=True
+    )
+
+    owner_id: Mapped[int]
     members: Mapped[list["User"]] = relationship(
         secondary=chat_association_table, back_populates="chats"
     )
 
     messages: Mapped[list["ChatMessage"]] = relationship(back_populates="chat")
+
+    # Settings
+    archived: Mapped[bool] = mapped_column(Boolean(), default=False, nullable=False)
 
 class ChatMessage(Base):
     __tablename__ = "chat_message"

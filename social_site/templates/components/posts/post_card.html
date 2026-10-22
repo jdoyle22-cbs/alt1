@@ -27,12 +27,12 @@
                 id="share-button-{{ post.id }}"
                 data-title="{{ post.title }}"
                 data-url="{{ request.url }}"
-    hx-on:click="
-        htmx.trigger(document, 'share', {
-            title: this.dataset.title,
-            url: this.dataset.url
-        })
-    "
+                hx-on:click="
+                    htmx.trigger(document, 'share', {
+                        title: this.dataset.title,
+                        url: this.dataset.url
+                    })
+                "
                 hx-nonce="{{ g.csp_nonce }}"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="var(--color-foreground)" height="16" width="16">

@@ -8,18 +8,16 @@
     }
 </style>
 
-<script nonce="{{ g.csp_nonce }}">
-    console.log("script loaded")
+<script nonce="{{ g.csp_nonce }}" type="module">
+    const { showToast } = await import('/static/js/toast.js');
+
     var last_messaging_username = "";
 
     const socket = io("/chat", { transports: ["websocket", "polling"] });
-    const chatId = {{ chat_id | tojson }};
-    console.log("Initial chat ID:", chatId);
+    const chatId = "{{ chat.id | tojson }}";
 
     socket.on("connect", () => {
-        console.log("Socket connected:", socket.id);
-        console.log(chatId)
-        socket.emit("join", { chat_id: chatId });
+        socket.emit("join", { chatId: chatId });
     });
 
     socket.on("connect_error", (error) => {
@@ -27,13 +25,15 @@
         console.error("Message:", error.message);
         console.error("Description:", error.description);
         console.error("Context:", error.context);
+
+        showToast("Failed to connect to chat.", "error");
     });
 
     socket.on("disconnect", (reason) => {
-        console.warn("Socket disconnected:", reason);
+        showToast("Disconnected from chat. Check your network connection.", "error");
     });
 
-    socket.on("message", (data) => {
+    function addMessage(data) {
         const message_template = document.getElementById("message-template");
         const message = message_template.content.cloneNode(true);
 
@@ -52,7 +52,7 @@
 
             user_header.querySelector("img").src = imageSrc;
             user_header.querySelector(".message-username").textContent = data.username;
-            user_header.querySelector(".message-username").href = `/users/${data.username}`;
+            user_header.querySelector(".message-username").href = `/@${data.username}`;
             if (data.username == "{{ g.user.username }}") {
                 user_header.querySelector(".user_header").classList.add('self');
             }
@@ -60,7 +60,7 @@
             document.getElementById("messages").appendChild(user_header);
         }
 
-        if (!(last_messaging_username !== data.username)) {
+        if (last_messaging_username === data.username) {
             message.querySelector(".message").classList.add("no-arrow");
         }
 
@@ -73,43 +73,56 @@
         last_messaging_username = data.username
         document.getElementById("messages").appendChild(message);
         messages.scrollTop = messages.scrollHeight;
+    }
+
+    socket.on("message", (data) => {
+        addMessage(data);
     });
 
     // Error Handling
-    const error_container = document.getElementById("error");
-    const error_paragraph = document.createElement("p");
-    error_paragraph.classList.add("form-message")
-    error_paragraph.classList.add("error")
+    //const error_container = document.getElementById("error");
+    //const error_paragraph = document.createElement("p");
+    //error_paragraph.classList.add("form-message")
+    //error_paragraph.classList.add("error")
 
     socket.on("persist_error", (data) => {
-        error_paragraph.textContent = "Failed to save chat - these messages may be lost when exiting.";
-        error_container.appendChild(paragraph);
+        showToast("Failed to save chat - these messages may be lost when exiting.", "error");
+        //error_paragraph.textContent = "Failed to save chat - these messages may be lost when exiting.";
+        //error_container.appendChild(paragraph);
     });
 
     socket.on("chat_error", (data) => {
-        error_paragraph.textContent = "Your chat connection has been interrupted. Messages may not send or appear in real time. Check your internet connection, then try reconnecting to the chat. If the problem persists, refresh the page. Messages that failed to send may need to be sent again.";
-        error_container.appendChild(paragraph);
+        showToast("Your chat connection has been interrupted. Messages may not send or appear in real time.", "error");
+        //error_paragraph.textContent = "Your chat connection has been interrupted. Messages may not send or appear in real time. Check your internet connection, then try reconnecting to the chat. If the problem persists, refresh the page. Messages that failed to send may need to be sent again.";
+        //error_container.appendChild(paragraph);
     })
 
-    document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("send-button").addEventListener("click", () => {
-            const input = document.getElementById("msg");
-            const message = input.value.trim();
+    const inputElement = document.getElementById("msg");
+    const sendButton = document.getElementById("send-button");
 
-            if (!message) return;
+    const sendMessage = () => {
+        const message = inputElement.value.trim();
+        if (!message) return;
 
-            try {
-                socket.emit("message", {
-                    chat_id: chatId,
-                    message: message
-                });
-            } catch (e) {
-                console.log(e)
-            }
+        try {
+            socket.emit("message", {
+                chatId: chatId,
+                message: message
+            });
+            inputElement.value = "";
+        } catch (e) {
+            showToast("Failed to send message.", "error");
+        }
+    };
 
-            input.value = "";
-        });
-    })
+    sendButton.addEventListener("click", sendMessage);
+
+    inputElement.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
 </script>
 {% endblock %}
 
@@ -123,9 +136,18 @@
     </svg>
     Back
 </a>
+<button
+    class="variant-ghost"
+    command="show-modal" 
+    commandfor="chat_settings_dialog"
+>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 10.27 7 3.34"/><path d="m11 13.73-4 6.93"/><path d="M12 22v-2"/><path d="M12 2v2"/><path d="M14 12h8"/><path d="m17 20.66-1-1.73"/><path d="m17 3.34-1 1.73"/><path d="M2 12h2"/><path d="m20.66 17-1.73-1"/><path d="m20.66 7-1.73 1"/><path d="m3.34 17 1.73-1"/><path d="m3.34 7 1.73 1"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="8"/></svg>
+    Settings
+</button>
 {% endblock %}
 
 {% block content %}
+{% include "/chat/chat_settings_dialog.html" %}
 <template id="message-template">
     <div class="message">
         <p class="message-text"></p>
@@ -138,7 +160,28 @@
     </div>
 </template>
 <div class="chat">
-    <div id="messages"></div>
+    <div id="messages">
+        {% set last_messaging_username = namespace(value=None) %}
+
+        {% for message in previous_messages %}
+            {% if last_messaging_username.value != message.user.username %}
+                <div class="user_header {% if g.user.username == message.user.username %} self {% endif %}">
+                    <img width="16" height="16" src="data:image/png;base64,{{ message.profile_picture }}" />
+                    <a  class="message-username"  href="/@{{ message.user.username }}">{{ message.user.username }}</a>
+                </div>
+            {% endif %}
+            <div class="
+                message 
+                {% if last_messaging_username.value == message.user.username %} no-arrow {% endif %}
+                {% if g.user.username == message.user.username %} self {% endif %}
+            ">
+                <p class="message-text">{{ message.text }}</p>
+            </div>
+            {% set last_messaging_username.value = message.user.username %}
+        {% else %}
+            <p>No messages yet.</p>
+        {% endfor %}
+    </div>
     <div id="error"></div>
     <div class="send">
         <input id="msg" type="text" placeholder="Enter your message">

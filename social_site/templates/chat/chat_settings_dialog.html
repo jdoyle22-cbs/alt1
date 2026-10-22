@@ -1,0 +1,87 @@
+<dialog id="chat_settings_dialog">
+    <div class="__header">
+        <div class="__name">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 10.27 7 3.34"/><path d="m11 13.73-4 6.93"/><path d="M12 22v-2"/><path d="M12 2v2"/><path d="M14 12h8"/><path d="m17 20.66-1-1.73"/><path d="m17 3.34-1 1.73"/><path d="M2 12h2"/><path d="m20.66 17-1.73-1"/><path d="m20.66 7-1.73 1"/><path d="m3.34 17 1.73-1"/><path d="m3.34 7 1.73 1"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="8"/></svg>
+            <h1>Chat Settings</h1>
+        </div>
+        <button class="variant-ghost icon small" command="close" commandfor="chat_settings_dialog" aria-label="Close Chat Settings Dialog">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+    </div>
+    <div class="__tabs">
+        <nav>
+            <button 
+                class="button variant-ghost small tab-general"
+                data-active="true"
+                hx-on:click="
+                    q('.tab-general').data.active = true;
+                    q('.tab-members').data.active = false;
+                    q('.tab-about').data.active = false;
+                "
+                hx-nonce="{{ g.csp_nonce }}"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 10.27 7 3.34"/><path d="m11 13.73-4 6.93"/><path d="M12 22v-2"/><path d="M12 2v2"/><path d="M14 12h8"/><path d="m17 20.66-1-1.73"/><path d="m17 3.34-1 1.73"/><path d="M2 12h2"/><path d="m20.66 17-1.73-1"/><path d="m20.66 7-1.73 1"/><path d="m3.34 17 1.73-1"/><path d="m3.34 7 1.73 1"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="8"/></svg>
+                General
+            </button>
+            <button 
+                class="button variant-ghost small tab-members"
+                data-active="false"
+                hx-on:click="
+                    q('.tab-general').data.active = false;
+                    q('.tab-members').data.active = true;
+                    q('.tab-about').data.active = false;
+                "
+                hx-nonce="{{ g.csp_nonce }}"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 21a8 8 0 0 1 10.821-7.487"/><path d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/><circle cx="10" cy="8" r="5"/></svg>
+                Members
+            </button>
+            <button 
+                class="button variant-ghost small tab-about"
+                data-active="false"
+                hx-on:click="
+                    q('.tab-general').data.active = false;
+                    q('.tab-members').data.active = false;
+                    q('.tab-about').data.active = true;
+                "
+                hx-nonce="{{ g.csp_nonce }}"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                About
+            </button>
+        </nav>
+    </div>
+    <div class="__content" hx-nonce="{{ g.csp_nonce }}" :hidden="q('.tab-general').data.active == false" data-tab="general">
+        <label class="input-form-wrapper" for="title">
+            <div class="label">
+                <span>Title</span>
+                <span>Name this chat to find it easily.</span>
+            </div>
+            <input type="text" id="title" name="title" />
+        </label>
+        <label class="input-form-wrapper" for="chat_archived">
+            <div class="label">
+                <span>Archive</span>
+                <span>Freeze this chat and prevent any new activity.</span>
+            </div>
+            <input type="checkbox" id="chat_archived" name="chat_archived" />
+        </label>
+        <hr />
+        <label class="input-form-wrapper" for="delete">
+            <div class="label">
+                <span>Delete</span>
+                <span>Permanently delete this chat. This cannot be undone.</span>
+            </div>
+            <button id="delete" class="variant-destructive">Delete</button>
+        </label>
+    </div>
+    <div class="__content" hx-nonce="{{ g.csp_nonce }}" :hidden="q('.tab-members').data.active == false" data-tab="members">
+        <p>members</p>
+    </div>
+    <div class="__content" hx-nonce="{{ g.csp_nonce }}" :hidden="q('.tab-about').data.active == false" data-tab="about">
+        <p>about</p>
+    </div>
+    <div class="__footer">
+        <button class="variant-primary">Save</button>
+    </div>
+</dialog>

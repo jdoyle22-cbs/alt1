@@ -1,9 +1,5 @@
-console.log("share feature");
+import { showToast } from "./toast.js";
 
 htmx.on("share", (evt) => {
-    console.log("share", evt.detail);
-});
-
-document.addEventListener("share", (evt) => {
-    console.log("Native share event:", evt.detail);
+    showToast(evt.detail);
 });

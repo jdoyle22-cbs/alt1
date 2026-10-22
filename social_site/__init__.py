@@ -4,6 +4,8 @@ import os
 import secrets
 
 from dotenv import load_dotenv
+import flask
+from flask import json
 import humanize
 from social_site.extensions import socketio, compress
 
@@ -11,7 +13,7 @@ from social_site.db import db, init_db_command
 from social_site.models import Post
 load_dotenv()
 
-from flask import Flask, g, render_template, request, Response, send_from_directory
+from flask import Flask, g, make_response, render_template, request, Response, send_from_directory
 from werkzeug.exceptions import NotFound, Unauthorized
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -45,15 +47,17 @@ def create_app():
         # See MDN Web Docs: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            f"script-src 'self' 'nonce-{nonce}'; "
+            f"script-src 'self' 'unsafe-eval' 'nonce-{nonce}'; "
             f"style-src 'self' 'nonce-{nonce}'; "
             "style-src-attr 'unsafe-inline'; "
             "connect-src 'self' https://localhost ws://localhost wss://localhost; "
             "object-src 'self' https://youtube.com https://imgur.com; "
             "base-uri 'self'; "
             "img-src 'self' data:; "
-            "require-trusted-types-for 'script'; "
-            "trusted-types htmx"
+            # DO NOT ENABLE - BREAKS HX-LIVE
+            # SECURITY RISK, BUT HAS TO HAPPEN
+            #"require-trusted-types-for 'script'; "
+            #"trusted-types htmx"
         )
 
         response.headers["Cross-Origin-Resource-Policy"] = "same-site"
@@ -140,5 +144,7 @@ if __name__ == '__main__':
         host=args.host,
         port=args.port,
         certfile=args.cert,
-        keyfile=args.key
+        keyfile=args.key,
+        async_mode="threading",
+        cors_allowed_origins="*"
     )

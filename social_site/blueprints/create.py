@@ -1,6 +1,6 @@
 import base64
 
-from flask import Blueprint, g, redirect, render_template, request, url_for
+from flask import Blueprint, g, json, make_response, redirect, render_template, request, url_for
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from social_site import db
@@ -36,17 +36,33 @@ def create_post():
             error = "Please provide either a body, href or image."
 
         if error is None:
+            post = Post(topic_id=topic_id, user_id=g.user.id, title=title, body=body, href=href, image=image)
             try:
-                db.session.add(Post(topic_id=topic_id, user_id=g.user.id, title=title, body=body, href=href, image=image))
+                db.session.add(post)
                 db.session.commit()
             except SQLAlchemyError as e:
                 db.session.rollback()
                 print("[ERR] [DB] Creation of record type POST failed with error:", e)
-                error = "Sorry, something went wrong."
-            else:
-                return redirect(url_for("index"))
+                return render_template(
+                    "/components/form-message.html",
+                    message="Sorry. something went wrong.",
+                    error=True
+                )
 
-        return render_template("/components/form-message.html", message=error)
+            response = make_response("")
+            response.headers["HX-Location"] = url_for(
+                "post.view", post_id=post.id
+            )
+            response.headers["HX-Trigger"] = json.dumps({
+                "toast": {
+                    "text": "Post created successfully.",
+                    "type": "success"
+                }
+            })
+
+            return response
+
+        return render_template("/components/form-message.html", message=error, error=True)
 
     elif request.method == "GET":
         return render_template("/create/create_post.html")
@@ -114,10 +130,15 @@ def create_topic():
                 error=True
             )
 
-        return render_template(
-            "/components/form-message.html",
-            message="Topic was created successfully.",
-        )
+        response = make_response("")
+        response.headers["HX-Trigger"] = json.dumps({
+            "toast": {
+                "text": "Topic created successfully.",
+                "type": "success"
+            }
+        })
+            
+        return response
 
     return render_template(
         "/components/form-message.html",
@@ -191,6 +212,7 @@ def create_chat():
             chat = Chat(
                 title=title,
                 members=list(members_by_id.values()),
+                owner_id=current_user.id
             )
 
             db.session.add(chat)
@@ -204,7 +226,15 @@ def create_chat():
                 message="Sorry, something went wrong.",
             )
 
-        return redirect(url_for("index"))
+        response = make_response("")
+        response.headers["HX-Trigger"] = json.dumps({
+            "toast": {
+                "text": "Chat created successfully.",
+                "type": "success"
+            }
+        })
+            
+        return response
 
     return render_template(
         "/components/form-message.html",

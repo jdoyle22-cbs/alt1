@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, g, render_template
+from flask import Blueprint, abort, g, json, make_response, render_template
 from sqlalchemy import select
 from social_site.db import db
 from social_site.models import Post, Reaction, ReactionType, Reply
@@ -24,6 +24,12 @@ def react(post_id: int, reaction_type: str):
 
     if reaction_type not in type_dict:
         return render_template("components/posts/reaction_buttons.html")
+
+    success_message = ""
+    if reaction_type == "like":
+        success_message = "Liked post."
+    elif reaction_type == "dislike":
+        success_message = "Disliked post."
 
     post = db.session.get(Post, post_id)
     if post is None:
@@ -60,11 +66,21 @@ def react(post_id: int, reaction_type: str):
         )
     )
 
-    return render_template(
-        "components/posts/reaction_buttons.html",
-        post=post,
-        user_reaction=user_reaction,
+    response = make_response(
+        render_template(
+            "components/posts/reaction_buttons.html",
+            post=post,
+            user_reaction=user_reaction,
+        )
     )
+    response.headers["HX-Trigger"] = json.dumps({
+        "toast": {
+            "text": success_message,
+            "type": "success"
+        }
+    })
+            
+    return response
 
 @bp.get("/<int:post_id>/replies")
 def get_replies(post_id: int):

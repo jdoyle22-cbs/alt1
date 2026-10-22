@@ -1,3 +1,5 @@
+import base64
+
 from flask import Blueprint, g, redirect, render_template, request, session, url_for
 from flask_socketio import emit, join_room, leave_room
 from sqlalchemy.exc import SQLAlchemyError
@@ -42,11 +44,33 @@ def chatroom(chat_id: int):
     if not g.user:
         return redirect(url_for("auth.login"))
 
-    #chat = get_member_chat(chat_id, g.user) if g.user else None
-    #if chat is None:
-    #    return render_template("error/404.html", hide_header=True), 404
-    
-    return render_template("/chat/chatroom.html", chat_id=chat_id)
+    chat = get_member_chat(chat_id, g.user) if g.user else None
+    if chat is None:
+        return render_template("error/404.html", hide_header=True), 404
+
+    stmt = (
+        db.select(ChatMessage)
+        .where(ChatMessage.chat_id == chat_id)
+        .order_by(ChatMessage.created_at.asc())
+    )
+
+    messages = db.session.execute(stmt).scalars().all()
+
+    profile_picture = None
+
+    if messages:
+        for message in messages:
+            message.user = db.session.get(User, message.user_id)
+            if message.user.profile_picture:
+                profile_picture = base64.b64encode(
+                    message.user.profile_picture
+                ).decode("ascii")
+                message.profile_picture = profile_picture
+
+    if not messages:
+        messages = ""
+
+    return render_template("/chat/chatroom.html", chat=chat, previous_messages=messages)
 
 # WebSockets
 def get_socket_user():
@@ -65,7 +89,7 @@ def handle_join(data):
         return
 
     try:
-        chat_id = int(data["chat_id"])
+        chat_id = int(data["chatId"])
     except (TypeError, ValueError, KeyError):
         return
 
@@ -96,11 +120,11 @@ def handle_message(data):
         return
     
     message = data.get("message")
-    chat_id = data.get("chat_id")
+    chat_id = data.get("chatId")
 
     if not isinstance(message, str):
         return
-    if not message or len(message) > 2000:
+    if not message or len(message) > 9999:
         return
 
     message = message.strip()
@@ -119,6 +143,7 @@ def handle_message(data):
     try:
         message_record = ChatMessage(user_id=user.id, chat_id=chat_id, text=message)
         db.session.add(message_record)
+        db.session.commit()
 
         emit(
             "message",
