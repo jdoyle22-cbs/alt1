@@ -1,4 +1,4 @@
-<div class="post-list">
+<div class="post-list" hx-boost:inherited="false"> {# Boost disabled as it causes issues with WebSockets #}
     {% if page.total == 0 %}
         <div class="card-error">
             <div class="__header">

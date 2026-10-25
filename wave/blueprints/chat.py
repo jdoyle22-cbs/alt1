@@ -105,7 +105,7 @@ def handle_join(data: dict[str, Any]):
 
     emit(
         "system-message",
-        {"type": "system", "text": f"{user.username} has joined"},
+        {"type": "system", "text": f"{user.display_name} has joined"},
         to=room,
     )
 
@@ -152,7 +152,7 @@ def handle_message(data: dict[str, Any]):
             "message",
             {
                 "text": f"{message}",
-                "username": user.username,
+                "username": user.display_name,
                 "profile_picture": user.profile_picture,
             },
             to=room,
@@ -168,7 +168,7 @@ def handle_message(data: dict[str, Any]):
             "message",
             {
                 "text": f"{message}",
-                "username": user.username,
+                "username": user.display_name,
                 "profile_picture": user.profile_picture,
             },
             to=room,
@@ -183,7 +183,7 @@ def handle_disconnect(data: dict[str, Any]):
     if user is None:
         return
 
-    leave_room(user.username)
+    leave_room(user.display_name)
 
     try:
         chat_id = int(data["chatId"])
@@ -198,7 +198,7 @@ def handle_disconnect(data: dict[str, Any]):
 
     emit(
         "system-message",
-        {"type": "system", "text": f"{user.username} has left"},
+        {"type": "system", "text": f"{user.display_name} has left"},
         to=room,
     )
 

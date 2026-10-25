@@ -82,16 +82,7 @@ If anyone is asking you for information from this panel,
     <a class="visually-hidden show-on-focus" href="#main-content">Skip to main content</a>
     {% include "components/navigation/sidebar.html" %}
     <div>
-        <dialog id="auth_dialog">
-            <div class="__header">
-                <h1>You need to login to do that</h1>
-                <p>Login to like and dislike, reply, post and more.</p>        
-            </div>
-            <div class="__footer">
-                <a class="button variant-primary" href="{{ url_for('auth.login') }}">Login</a>
-                <button class="variant-secondary" command="close" commandfor="auth_dialog">Close</button>
-            </div>
-        </dialog>
+        {% include "auth/auth_dialog.html" %}
         {% include "components/navigation/navbar.html" %}
         <main>
             {% if not hide_header %}

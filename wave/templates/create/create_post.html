@@ -15,7 +15,7 @@
 >
     <article class="post-view preview">
         <header class="__header">
-            <a href="#">@{{ g.user.display_name }}</a>
+            <a href="#">{{ g.user.display_name }}</a>
             <span>&#8226;</span>
             <a href="#">{{ "topic" }}</a>
             <span>&#8226;</span>
@@ -60,44 +60,44 @@
     </article>
 
     <section class="form-group">
-        <label class="input-form-wrapper no-bottom" for="topic_id">
-            <div class="label">
+        <div class="input-form-wrapper no-bottom" for="topic_id">
+            <label for="topic_id">
                 <span>Topic ID</span>
                 <span>Choose a suitable location for this post.</span>
-            </div>
+            </label>
             <input type="text" id="topic_id" name="topic_id" value="" />
-        </label>
-        <label class="input-form-wrapper no-bottom" for="href">
-            <div class="label">
+        </div>
+        <div class="input-form-wrapper no-bottom" for="href">
+            <label for="href">
                 <span>Href</span>
                 <span>Link a URL such as a news article or blog.</span>
-            </div>
+            </label>
             <input type="text" id="href" name="href" value="" />
-        </label>
-        <label class="input-form-wrapper no-bottom" for="image">
-            <div class="label">
+        </div>
+        <div class="input-form-wrapper no-bottom" for="image">
+            <label for="image">
                 <span>Image</span>
                 <span>Attach an image to this post.</span>
-            </div>
+            </label>
             <input type="text" id="image" name="image" value="" />
-        </label>
+        </div>
     </section>
 
     <section class="form-group">
-        <label class="input-form-wrapper no-top" for="notifications">
-            <div class="label">
+        <div class="input-form-wrapper no-top" for="notifications">
+            <label for="notifications">
                 <span>Notifications</span>
                 <span>Receive alerts about new activity in this post.</span>
-            </div>
+            </label>
             <input type="checkbox" id="notifications" name="notifications" />
-        </label>
-        <label class="input-form-wrapper no-top no-bottom" for="locked">
-            <div class="label">
+        </div>
+        <div class="input-form-wrapper no-top no-bottom" for="locked">
+            <label for="locked">
                 <span>Lock</span>
                 <span>Prevent any new replies on this post.</span>
-            </div>
+            </label>
             <input type="checkbox" id="locked" name="locked" />
-        </label>
+        </div>
     </section>
 
     <div id="error"></div>

@@ -1,8 +1,8 @@
 <article class="post-card" id="post-{{ post.id }}" style="--post-id: post-{{ post.id }};">
         <header class="__header">
-            <a href="{{ url_for('post.view', post_id=post.id) }}">@{{ post.user.display_name }}</a>
+            <a href="/@{{ post.user.username }}">{{ post.user.display_name }}</a>
             <span>&#8226;</span>
-            <a href="{{ url_for('post.view', post_id=post.id) }}">{{ post.topic.name }}</a>
+            <a href="/~/{{ post.topic.name }}">~/{{ post.topic.name }}</a>
             <span>&#8226;</span>
             <time 
                 datetime="{{ post.created_at.isoformat() }}" 
