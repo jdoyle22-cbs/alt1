@@ -1,5 +1,15 @@
 {
     "files.associations": {
         "*.html": "jinja-html",
+    },
+    // Have Ruff handle these
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportMissingImports": "none",
+        "reportUnusedImport": "none",
+        // Has to be done due to `flask_socketio`
+        "reportUnknownMemberType": false,
+        "reportUnknownVariableType": false,
+        "reportUnknownArgumentType": false,
+        "reportMissingTypeStubs": "none"
     }
 }

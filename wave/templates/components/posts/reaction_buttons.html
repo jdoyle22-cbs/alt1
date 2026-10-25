@@ -1,0 +1,33 @@
+<div id="reaction-buttons-{{ post.id }}" class="reaction-buttons">
+    <button 
+        class="variant-secondary icon like-button {% if user_reaction and g.user and user_reaction.type.name == "LIKE" %} active {% endif %}" 
+        {% if g.user %} 
+            hx-post="{{ url_for('post.react', post_id=post.id, reaction_type='like') }}"
+            hx-target="#reaction-buttons-{{ post.id }}" 
+            hx-swap="outerHTML"
+        {% else %}
+            command="show-modal" 
+            commandfor="auth_dialog"
+        {% endif %}
+        hx-nonce="{{ g.csp_nonce }}"
+        aria-label="Like"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="{% if user_reaction and g.user and user_reaction.type.name == 'LIKE' %}var(--color-foreground){% else %}var(--color-btn-secondary-background){% endif %}" stroke="var(--color-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/><path d="M7 10v12"/></svg>
+    </button>
+
+    <button 
+        class="variant-secondary icon dislike-button {% if user_reaction and g.user and user_reaction.type.name == "DISLIKE" %} active {% endif %}"
+        {% if g.user %} 
+            hx-post="{{ url_for('post.react', post_id=post.id, reaction_type='dislike') }}"
+            hx-target="#reaction-buttons-{{ post.id }}" 
+            hx-swap="outerHTML"
+        {% else %}
+            command="show-modal" 
+            commandfor="auth_dialog"
+        {% endif %}
+        hx-nonce="{{ g.csp_nonce }}"
+        aria-label="Dislike"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="{% if user_reaction and g.user and user_reaction.type.name == 'DISLIKE' %}var(--color-foreground){% else %}var(--color-btn-secondary-background){% endif %}" stroke="var(--color-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"/><path d="M17 14V2"/></svg>
+    </button>
+</div>

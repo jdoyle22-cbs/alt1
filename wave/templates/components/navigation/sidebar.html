@@ -1,0 +1,33 @@
+<nav class="sidebar hide-mobile" data-active="false" id="main-sidebar" hx-preserve="true">
+    <div class="__header">
+        <img height="24" role="img" src="{{ url_for('static', filename='metadata/ico.svg') }}" />
+        <button hx-on:click="data.active = !data.active" hx-nonce="{{ g.csp_nonce }}" class="variant-ghost icon" aria-label="Toggle Sidebar">
+            <svg xmlns="http://www.w3.org/2000/svg" :class="{ hidden: data.active }" hx-nonce="{{ g.csp_nonce }}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m14 9 3 3-3 3"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" :class="{ hidden: !data.active }" hx-nonce="{{ g.csp_nonce }}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m16 15-3-3 3-3"/></svg>
+        </button>
+    </div>
+        <div class="sidebar_links main">
+            <div class="links">
+                <a href="{{ url_for('index') }}" hx-nonce="{{ g.csp_nonce }}" aria-label="Go to Home page" hx-preload="mouseover" class="button variant-ghost {% if request.path == '/' %} active {% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    <span>Home</span>
+                </a>
+                <a href="/trending" hx-nonce="{{ g.csp_nonce }}" aria-label="Go to Trending page" class="button variant-ghost {% if request.path == '/trending/' %} active {% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v5"/><path d="M16 14.639V21"/><path d="M20 10.656V21"/><path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/><path d="M4 18.463V21"/><path d="M8 14.656V21"/></svg>
+                    <span>Trending</span>
+                </a>
+                <a href="/topics" hx-nonce="{{ g.csp_nonce }}" aria-label="Go to Topics page" class="button variant-ghost {% if request.path == '/topics/' %} active {% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-.9-1.2A1 1 0 0 0 15 3h-2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z"/><path d="M20 21a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-2.9a1 1 0 0 1-.88-.55l-.42-.85a1 1 0 0 0-.92-.6H13a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z"/><path d="M3 5a2 2 0 0 0 2 2h3"/><path d="M3 3v13a2 2 0 0 0 2 2h3"/></svg>
+                    <span>Topics</span>
+                </a>
+                <a href="/users" hx-nonce="{{ g.csp_nonce }}" aria-label="Go to Users page" class="button variant-ghost {% if request.path == '/users/' %} active {% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21a5 5 0 00-10 0"/><path d="M22 10.5a3.5 3.5 0 00-5.507-2.868"/><path d="M7.507 7.632A3.5 3.5 0 002 10.5"/><circle cx="12" cy="13" r="3"/><circle cx="18.5" cy="4.5" r="2.5"/><circle cx="5.5" cy="4.5" r="2.5"/></svg>
+                    <span>Users</span>
+                </a>
+                <a href="{{ url_for('chat.chat_index') }}" hx-nonce="{{ g.csp_nonce }}" aria-label="Go to Chat page" hx-preload="mouseover" class="button variant-ghost {% if request.path == '/chat/' %} active {% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.95 10.05a7 7 0 011.412 7.872 1 1 0 00-.058.787l.675 2.089a1 1 0 01-1.236 1.168l-2.155-.631a1 1 0 00-.745.06 7 7 0 01-7.793-1.445"/><path d="M2.696 12.708a1 1 0 00-.058-.785 7 7 0 113.518 3.473 1 1 0 00-.744-.061l-2.155.63a1 1 0 01-1.236-1.167z"/></svg>
+                    <span>Chat</span>
+                </a>
+            </div>
+        </div>
+</nav>

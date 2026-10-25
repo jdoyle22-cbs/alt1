@@ -1,0 +1,44 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Flask",
+            "type": "debugpy",
+            "request": "launch",
+            "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+            "module": "flask",
+            "env": {
+                "FLASK_DEBUG": "1"
+            },
+            "args": [
+                "--app",
+                "wave",
+                "run",
+                "--no-debugger",
+                "--no-reload"
+            ],
+            "jinja": true,
+            "autoStartBrowser": false,
+            "purpose": [
+                "debug-test"
+            ],
+            "serverReadyAction": {
+                "pattern": "Running on http://127.0.0.1:([0-8]+)",
+                "action": "debugWithChrome",
+                // This parameter does nothing, but apparently VSCode mandates I use the port substitution
+                "uriFormat": "http://localhost/?port=%s"
+            },
+            "envFile": "${workspaceFolder}/.env",
+            "subProcess": true,
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Flask + Caddy",
+            "configurations": [
+                "Python Debugger: Flask"
+            ],
+            "preLaunchTask": "Run Caddy"
+        }
+    ]
+}

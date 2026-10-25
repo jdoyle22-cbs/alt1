@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% from '/components/spinner.html' import spinner %}
+
+{% block header %}
+<h1>{% block title %}Home{% endblock %}</h1>
+<div class="__actions">
+    <button type="button" class="variant-ghost" data-action="page-reload">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H3"/><path d="M7 12H3"/><path d="M7 19H3"/><path d="M12 18a5 5 0 0 0 9-3 4.5 4.5 0 0 0-4.5-4.5c-1.33 0-2.54.54-3.41 1.41L11 14"/><path d="M11 10v4h4"/></svg>
+        Refresh feed
+    </button>
+    <button type="button" class="variant-ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H3"/><path d="M7 12H3"/><path d="M7 19H3"/><path d="M12 18a5 5 0 0 0 9-3 4.5 4.5 0 0 0-4.5-4.5c-1.33 0-2.54.54-3.41 1.41L11 14"/><path d="M11 10v4h4"/></svg>
+        Refresh feed
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+    <div 
+        hx-get="{{ url_for('fetch.fetch_htmx_feed') }}" 
+        hx-trigger="load" 
+        hx-swap="outerHTML"
+        hx-nonce="{{ g.csp_nonce }}"
+    >
+        <div class="post-list">
+            {% for i in range(0, 10) %}
+                <div class="skeleton-post">{{ spinner() }}</div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

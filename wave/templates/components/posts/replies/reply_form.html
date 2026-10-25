@@ -1,0 +1,26 @@
+<form 
+    class="reply-form card"
+    id="reply-form-{{ parent_type }}_{{ parent_id }}"
+    {% if parent_type == "post" %}
+        hx-post="{{ url_for('reply.create_post_reply', parent_id=parent_id) }}"
+    {% elif parent_type == "reply" %}
+        hx-post="{{ url_for('reply.create_reply_reply', parent_id=parent_id) }}"
+    {% endif %}
+    hx-target="reply_{{ parent_id }}_message"
+    hx-swap="outerHTML"
+    hx-nonce="{{ g.csp_nonce }}"
+>
+    <textarea name="reply_{{ parent_id }}_content" id="reply_{{ parent_id }}_content" hx-validate="true" minlength="3"></textarea>
+    <div class="__footer">
+        {{ parent_type }}
+        <button class="variant-ghost" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21H8a2 2 0 0 1-1.42-.587l-3.994-3.999a2 2 0 0 1 0-2.828l10-10a2 2 0 0 1 2.829 0l5.999 6a2 2 0 0 1 0 2.828L12.834 21"/><path d="m5.082 11.09 8.828 8.828"/></svg>
+            Discard
+        </button>
+        <button class="variant-secondary" type="submit">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/><path d="m10 15-3-3 3-3"/><path d="M7 12h8a2 2 0 0 1 2 2v1"/></svg>
+            Reply
+        </button>
+    </div>
+    <div id="reply_{{ parent_id }}_message"></div>
+</form>

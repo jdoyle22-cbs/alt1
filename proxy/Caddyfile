@@ -1,0 +1,31 @@
+localhost {
+	tls internal
+
+	root * ./error
+
+	handle_path /error* {
+		file_server
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:5000 {
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-Host {host}
+
+			flush_interval -1
+		}		
+	}
+
+	encode zstd gzip
+
+	handle_errors {
+		@custom_err file /{err.status_code}.html /err.html
+		handle @custom_err {
+			rewrite * {file_match.relative}
+			file_server
+		}
+		handle {
+			respond "{err.status_code} {err.status_text}" {err.status_code}
+		}
+	}
+}

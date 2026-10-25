@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% from "/components/form/submit_button.html" import submit_button %}
+
+{% block header %}
+<h1>{% block title %}Create Post{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<form     
+    hx-post="{{ url_for('create.create_post') }}"
+    hx-target="#error"
+    hx-swap="innerHTML"
+    hx-nonce="{{ g.csp_nonce }}"
+>
+    <article class="post-view preview">
+        <header class="__header">
+            <a href="#">@{{ g.user.display_name }}</a>
+            <span>&#8226;</span>
+            <a href="#">{{ "topic" }}</a>
+            <span>&#8226;</span>
+            <time>now</time>
+        </header>
+
+        <textarea type="text" name="title" id="title" class="__title remove-styling" placeholder="Title"></textarea>
+
+        <textarea type="text" name="body" id="body" class="__body remove-styling" placeholder="Body"></textarea>
+
+        <footer class="__actions">
+            <div class="reaction-buttons">
+                <button 
+                    class="variant-secondary icon like-button" 
+                    aria-label="Like"
+                    type="button"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/><path d="M7 10v12"/></svg>
+                </button>
+
+                <button 
+                    class="variant-secondary icon dislike-button"
+                    aria-label="Dislike"
+                    type="button"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"/><path d="M17 14V2"/></svg>
+                </button>
+            </div>
+            <button
+                class="variant-secondary"
+                id="share-button"
+                type="button"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+                Share
+            </button>
+            <button class="variant-secondary" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-foreground)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/><path d="m10 15-3-3 3-3"/><path d="M7 12h8a2 2 0 0 1 2 2v1"/></svg>
+                Reply
+            </button>
+        </footer>
+    </article>
+
+    <section class="form-group">
+        <label class="input-form-wrapper no-bottom" for="topic_id">
+            <div class="label">
+                <span>Topic ID</span>
+                <span>Choose a suitable location for this post.</span>
+            </div>
+            <input type="text" id="topic_id" name="topic_id" value="" />
+        </label>
+        <label class="input-form-wrapper no-bottom" for="href">
+            <div class="label">
+                <span>Href</span>
+                <span>Link a URL such as a news article or blog.</span>
+            </div>
+            <input type="text" id="href" name="href" value="" />
+        </label>
+        <label class="input-form-wrapper no-bottom" for="image">
+            <div class="label">
+                <span>Image</span>
+                <span>Attach an image to this post.</span>
+            </div>
+            <input type="text" id="image" name="image" value="" />
+        </label>
+    </section>
+
+    <section class="form-group">
+        <label class="input-form-wrapper no-top" for="notifications">
+            <div class="label">
+                <span>Notifications</span>
+                <span>Receive alerts about new activity in this post.</span>
+            </div>
+            <input type="checkbox" id="notifications" name="notifications" />
+        </label>
+        <label class="input-form-wrapper no-top no-bottom" for="locked">
+            <div class="label">
+                <span>Lock</span>
+                <span>Prevent any new replies on this post.</span>
+            </div>
+            <input type="checkbox" id="locked" name="locked" />
+        </label>
+    </section>
+
+    <div id="error"></div>
+
+    {{ submit_button() }}
+</form>
+{% endblock %}

@@ -1,0 +1,33 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run Caddy",
+            "type": "shell",
+            "command": "./proxy/caddy.exe run --config ./proxy/Caddyfile --adapter caddyfile",
+            "isBackground": true,
+            "runOptions": {
+                "instanceLimit": 1
+            },
+            "problemMatcher": {
+                "owner": "caddyfile",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceFolder}/proxy"
+                ],
+                "source": "caddy",
+                "pattern": {
+                    "regexp": "^(\\d{4}\\/\\d{2}\\/\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3})\\s+(ERROR)\\s+(.*?)(?:\\s+(\\{.*\\}))?$",
+                    "file": 1,
+                    "severity": 2,
+                    "message": 3
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".*",
+                    "endsPattern": ".*\\s+INFO\\s+.*(?:serving|started|engine).*"
+                }
+            }
+        }
+    ]
+}

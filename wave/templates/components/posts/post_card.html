@@ -1,0 +1,45 @@
+<article class="post-card" id="post-{{ post.id }}" style="--post-id: post-{{ post.id }};">
+        <header class="__header">
+            <a href="{{ url_for('post.view', post_id=post.id) }}">@{{ post.user.display_name }}</a>
+            <span>&#8226;</span>
+            <a href="{{ url_for('post.view', post_id=post.id) }}">{{ post.topic.name }}</a>
+            <span>&#8226;</span>
+            <time 
+                datetime="{{ post.created_at.isoformat() }}" 
+                title="{{ post.created_at.strftime('%d %B %Y at %H:%M') }}"
+            >
+                {{ post.created_at|naturaltime }}
+            </time>
+        </header>
+
+        <a class="__title" href="{{ url_for('post.view', post_id=post.id) }}">
+            <h1>{{ post.title|escape|truncate(105, False, '...', 0) }}</h1>
+        </a>
+
+        {% if post.body %}
+            <p class="preview">{{ post.body|escape|truncate(260, False, '...', 0) }}</p>
+        {% endif %}
+
+    <footer class="__actions">
+        {% with user_reaction=post.user_reaction %}
+            {% include "components/posts/reaction_buttons.html"  %}
+        {%endwith%}
+        <button
+            class="variant-secondary"
+            id="share-button-{{ post.id }}"
+            data-title="{{ post.title }}"
+            data-description="{{ post.body|escape|truncate(260, False, '...', 0) }}"
+            data-url="{{ request.url }}"
+            hx-on:click="
+                htmx.trigger(document, 'share', {
+                    title: this.dataset.title,
+                    url: this.dataset.url
+                })
+            "
+             hx-nonce="{{ g.csp_nonce }}"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+            Share
+        </button>
+    </footer>
+</article>
