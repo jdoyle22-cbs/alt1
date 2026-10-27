@@ -7,6 +7,14 @@
         justify-content: flex-start;
     }
 
+    .justify-center {
+        justify-content: center;
+    }
+
+    .justify-end {
+        justify-content: flex-end;
+    }
+
     .align-center {
         align-items: center;
     }
@@ -39,5 +47,24 @@
 
     .animate-spin {
         animation: spin 1s linear infinite;
+    }
+
+    .vertical-rule {
+        &::after {
+            content: "";
+            position: absolute;
+            background-color: var(--color-border);
+            width: 1px;
+            height: 50%;
+            top: 25%;
+        }
+    }
+
+    .round-full {
+        border-radius: 9999px;
+    }
+
+    .width-full {
+        width: 100%;
     }
 }

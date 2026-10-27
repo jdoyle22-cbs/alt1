@@ -6,16 +6,35 @@
 
 {% block content %}
 <form method="POST">
-    <div>
-        <label for="username">Username</label>
-        <input type="text" name="username" id="username" required>
-    </div>
+    <section class="form-group">
+        <div class="input-form-wrapper" for="username">
+            <label for="username">
+                <span>Username</span>
+            </label>
+            <input type="text" name="username" id="username" required>
+        </div>
+        <div class="input-form-wrapper no-top" for="password">
+            <label for="password">
+                <span>Password</span>
+            </label>
+            <input type="password" name="password" id="password" required>
+        </div>
+    </section>
 
-    <div>
-        <label for="password">Password</label>
-        <input type="password" name="password" id="password" required>
-    </div>
+    <section class="form-group">
+        <div class="input-form-wrapper singular">
+            <label>
+                <span><div id="error"></div></span>
+            </label>
 
-    <button class="variant-primary" type="submit">Log In</button>
+            <div class="flex-row justify-end gap-1_5">
+                <a href="{{ url_for('auth.register') }}" class="button variant-ghost">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 21a8 8 0 0 1 13.292-6"/><circle cx="10" cy="8" r="5"/><path d="M19 16v6"/><path d="M22 19h-6"/></svg>
+                    Signup
+                </a>
+                <button class="variant-primary" type="submit">Log In</button>
+            </div>
+        </div>
+    </section>
 </form>
 {% endblock %}

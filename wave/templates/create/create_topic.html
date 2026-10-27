@@ -13,19 +13,54 @@
     hx-target="#error"
     hx-swap="innerHTML"
     hx-nonce="{{ g.csp_nonce }}"
+    enctype="multipart/form-data"
 >
-        <div>
-            <label for="name">Name</label>
-            <input type="text" name="name" id="name" class="width-full" required>
+    <section class="form-group">
+        <div class="input-form-wrapper" for="name">
+            <label for="topic_id">
+                <span>Name</span>
+                <span>Choose a short but relevant name.</span>
+            </label>
+            <input type="text" id="name" name="name" value="" required />
         </div>
-
-        <div>
-            <label for="description">Description</label>
-            <input type="text" name="description" id="description" class="width-full" maxlength="200" required>
+        <div class="input-form-wrapper" for="description">
+            <label for="topic_id">
+                <span>Description</span>
+                <span>Tell others what your topic is about, what to post etc.</span>
+            </label>
+            <input type="text" id="description" name="description" value="" required />
         </div>
+        <div class="input-form-wrapper" for="image">
+            <label for="image">
+                <span>Image</span>
+                <span>Small icon to represent your topic.</span>
+            </label>
+            <div class="file-upload">
+                <label for="image" class="file-upload__label">
+                    <span class="button variant-secondary">Choose file</span>
+                    <span class="file-upload__text" id="image-status">No file selected</span>
+                </label>
 
-        <div id="error"></div>
+                <input
+                    id="image"
+                    class="file-upload__input"
+                    type="file"
+                    name="image"
+                    aria-describedby="image-status"
+                    accept="image/*"
+                    required
+                >
+            </div>
+        </div>
+    </section>
 
-        {{ submit_button() }}
+    <section class="form-group">
+        <div class="input-form-wrapper singular">
+            <label>
+                <span><div id="error"></div></span>
+            </label>
+            {{ submit_button() }}
+        </div>
+    <section>
 </form>
 {% endblock %}

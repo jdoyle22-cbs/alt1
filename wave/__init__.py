@@ -6,6 +6,7 @@ from wave.db import db, init_db_command
 from wave.extensions import compress, socketio
 
 import humanize
+import icecream
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,6 +16,7 @@ from flask import (
     Response,
     g,
     render_template,
+    request,
     send_from_directory,
 )
 from werkzeug.exceptions import NotFound, Unauthorized
@@ -34,6 +36,9 @@ def create_app():
         COMPRESS_ALGORITHM=["br", "gzip", "deflate"],
         COMPRESS_ALGORITHM_STREAMING=["br", "deflate"],
         COMPRESS_BR_LEVEL=5,
+        UPLOAD_PATH="wave/static/images/uploaded",
+        MAX_CONTENT_LENGTH=4 * 1024 * 1024,  # 4mb
+        UPLOAD_EXTENSIONS=[".jpg", ".png", ".gif", ".avif", ".webp"],
     )
 
     os.makedirs(app.instance_path, exist_ok=True)
@@ -70,15 +75,17 @@ def create_app():
         response.headers["Vary"] = "HX-Request"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Permissions-Policy"] = (
-            "camera=(), microphone=(), geolocation=(), usb=()"
+            "accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), camera=(), cross-origin-isolated=(self), display-capture=(), document-domain=(), encrypted-media=*, execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=*, geolocation=(), gyroscope=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), navigation-override=(), payment=(), picture-in-picture=(), publickey-credentials-get=(self), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(self), xr-spatial-tracking=(), clipboard-read=(), clipboard-write=(self), gamepad=(), speaker-selection=(), conversion-measurement=(), focus-without-user-activation=(), hid=(), idle-detection=(), interest-cohort=(), serial=(), sync-script=(), trust-token-redemption=(), unload=(), window-placement=(), vertical-scroll=()"
         )
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["X-Frame-Options"] = "DENY"
 
         response.headers["Strict-Transport-Security"] = (
-            "max-age=63072000",
-            "includeSubDomains",
-            "preload",
+            "max-age=63072000; includeSubDomains;"
+        )
+
+        response.headers["Cache-Control"] = (
+            "Cache-Control: public, max-age=31536000, immutable"
         )
 
         return response
@@ -94,11 +101,25 @@ def create_app():
     # Error handlers
     @app.errorhandler(NotFound)
     def not_found(error: NotFound):
-        return render_template("error/404.html", hide_header=True), 404
+        if request.headers.get("HX-Request"):
+            return render_template(
+                "/components/form-message.html",
+                message="Page requested was not found.",
+                error=True,
+            ), 404
+        else:
+            return render_template("error/404.html", hide_header=True), 404
 
     @app.errorhandler(Unauthorized)
     def unauthorized(error: Unauthorized):
-        return render_template("error/401.html", hide_header=True), 401
+        if request.headers.get("HX-Request"):
+            return render_template(
+                "/components/form-message.html",
+                message="Unauthorised to view resource.",
+                error=True,
+            ), 401
+        else:
+            return render_template("error/401.html", hide_header=True), 401
 
     # Template Filters
     @app.template_filter("naturaltime")
@@ -109,7 +130,7 @@ def create_app():
     app.cli.add_command(init_db_command)
 
     # Blueprints
-    from .blueprints import auth, chat, create, fetch, post, reply
+    from .blueprints import auth, chat, create, fetch, post, reply, search, upload
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(post.bp)
@@ -117,6 +138,10 @@ def create_app():
     app.register_blueprint(create.bp)
     app.register_blueprint(chat.bp)
     app.register_blueprint(fetch.bp)
+    app.register_blueprint(search.bp)
+    app.register_blueprint(upload.bp)
+
+    app.add_url_rule("/upload/<name>", endpoint="download_file", build_only=True)
 
     # Init
     db.init_app(app)
@@ -149,9 +174,11 @@ if __name__ == "__main__":
     if args.cert and args.key:
         ssl_context = (args.cert, args.key)
 
+    icecream.install()
+
     socketio.run(
         app,
-        debug=args.debug,
+        debug=False,
         log_output=True,
         host=args.host,
         port=args.port,

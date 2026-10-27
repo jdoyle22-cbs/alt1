@@ -1,4 +1,4 @@
-# Flask recommened gitignore
+# Flask recommended gitignore
 
 .venv/
 
@@ -16,3 +16,6 @@ build/
 *.egg-info/
 
 .env
+
+# Don't want to upload every image to GitHub
+wave/static/images/uploaded/

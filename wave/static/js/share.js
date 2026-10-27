@@ -1,10 +1,10 @@
 import { showToast } from "./toast.js";
 
-htmx.on("share", async (evt) => {
+export async function handleShare(data) {
     const shareData = {
-        title: evt.detail.title ?? "Post on Wave",
-        text: evt.detail.description ?? "You've been shared a post on Wave - come check it out!",
-        url: evt.detail.url,
+        title: data.title ?? "Post on Wave",
+        text: data.description ?? "You've been shared a post on Wave - come check it out!",
+        url: data.url,
     };
 
     if (!navigator.canShare) {
@@ -36,4 +36,4 @@ htmx.on("share", async (evt) => {
         showToast("Something went wrong while sharing.", "error");
         return;
     }
-});
+};

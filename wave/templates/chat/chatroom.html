@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% from '/components/rich_text_input.html' import rich_text_input %}
+
 {% block head %}
 <style nonce="{{ g.csp_nonce }}">
     body {
@@ -7,6 +9,8 @@
         height: 100dvh; 
     }
 </style>
+
+<script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/min/socket.io.min.js') }}"></script>
 
 <script nonce="{{ g.csp_nonce }}" type="module">
     const { showToast } = await import('/static/js/toast.js');
@@ -17,7 +21,10 @@
     const chatId = "{{ chat.id | tojson }}";
 
     socket.on("connect", () => {
+        performance.mark("chat-connect-start");
         socket.emit("join", { chatId: chatId });
+        performance.mark("chat-connect-end");
+        performance.measure("Chat Connect Time", "chat-connect-start", "chat-connect-end");
     });
 
     socket.on("connect_error", (error) => {
@@ -34,7 +41,7 @@
     });
 
     function addMessage(data) {
-        console.log(data);
+        performance.mark("chat-add_client_message-start");
 
         if (data.type === "system") {
             const sys_msg = document.createElement("span");
@@ -62,7 +69,7 @@
 
                 user_header.querySelector("img").src = imageSrc;
                 user_header.querySelector(".message-username").textContent = data.username;
-                user_header.querySelector(".message-username").href = `/@${data.username}`;
+                user_header.querySelector(".message-username").href = `/@/${data.username}`;
                 if (data.username == "{{ g.user.username }}") {
                     user_header.querySelector(".user_header").classList.add('self');
                 }
@@ -85,6 +92,8 @@
         }
 
         messages.scrollTop = messages.scrollHeight;
+        performance.mark("chat-add_client_message-end");
+        performance.measure("Chat Client addMessage Time", "chat-add_client_message-start", "chat-add_client_message-end");
     }
 
     socket.on("message", (data) => {
@@ -107,6 +116,7 @@
     const sendButton = document.getElementById("send-button");
 
     const sendMessage = () => {
+        performance.mark("chat-send_message-start");
         const message = inputElement.value.trim();
         if (!message) return;
 
@@ -119,6 +129,8 @@
         } catch (e) {
             showToast("Failed to send message.", "error");
         }
+        performance.mark("chat-send_message-end");
+        performance.measure("Chat Send Message Time", "chat-send_message-start", "chat-send_message-end");
     };
 
     sendButton.addEventListener("click", sendMessage);
@@ -175,7 +187,7 @@
             {% if last_messaging_username.value != message.user.username %}
                 <div class="user_header {% if g.user.username == message.user.username %} self {% endif %}">
                     <img width="16" height="16" src="data:image/png;base64,{{ message.profile_picture }}" />
-                    <a  class="message-username"  href="/@{{ message.user.username }}">{{ message.user.username }}</a>
+                    <a  class="message-username"  href="/@/{{ message.user.username }}">{{ message.user.username }}</a>
                 </div>
             {% endif %}
             <div class="
@@ -192,8 +204,7 @@
     </div>
     <div id="error"></div>
     <div class="send">
-        <input id="msg" type="text" placeholder="Enter your message" />
-        <button class="variant-primary" hx-nonce="{{ g.csp_nonce }}" id="send-button" type="button">Send</button>
+        {{ rich_text_input(id="msg",send_button=true, placeholder="Enter your message") }}
     </div>
 </div>
 {% endblock %}

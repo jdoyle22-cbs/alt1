@@ -1,3 +1,4 @@
+from icecream import ic
 import base64
 import copy
 import functools
@@ -60,7 +61,7 @@ def register():
                 else:
                     error = "The user could not be registered."
             except SQLAlchemyError as e:
-                print("[ERR] [DB]", e.__cause__)
+                ic("[ERR] [DB]", e.__cause__)
                 error = "Sorry, something went wrong."
             else:
                 return redirect(url_for("auth.login"))

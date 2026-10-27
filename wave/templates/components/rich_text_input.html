@@ -1,0 +1,88 @@
+{% macro rich_text_input(type="text", id="", name="", placeholder="", send_button=false, class="", required=true) -%}
+    {% block head %}
+        <script nonce="{{ g.csp_nonce }}" src="{{ url_for('static', filename='js/rich-text.js') }}" type="module" defer></script>
+    {% endblock%}
+    
+    <div class="rich-input-wrapper">
+        <textarea
+            type="{{ type }}"
+            id="{{ id }}"
+            name="{{ name }}"
+            class="{{ class }}"
+            placeholder="{{ placeholder }}"
+            required="{{ required }}"
+        >{{ value or "" }}</textarea>
+        <div class="__footer">
+            <button class="variant-ghost icon small" aria-label="Toggle Bold" data-rich-input="{{ id }}" data-input-command="bold" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h9a4 4 0 0 1 0 8H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h7a4 4 0 0 1 0 8"/></svg>
+            </button>
+            <button class="variant-ghost icon small" aria-label="Toggle Italics" data-rich-input="{{ id }}" data-input-command="italic" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" x2="10" y1="4" y2="4"/><line x1="14" x2="5" y1="20" y2="20"/><line x1="15" x2="9" y1="4" y2="20"/></svg>
+            </button>
+            <button class="variant-ghost icon small" aria-label="Toggle Underline" data-rich-input="{{ id }}" data-input-command="underline" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" x2="20" y1="20" y2="20"/></svg>
+            </button>
+            <button class="variant-ghost icon small" aria-label="Toggle Strikethrough" data-rich-input="{{ id }}" data-input-command="strikethrough" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4H9a3 3 0 0 0-2.83 4"/><path d="M14 12a4 4 0 0 1 0 8H6"/><line x1="4" x2="20" y1="12" y2="12"/></svg>
+            </button>
+
+            <div class="vertical-rule"></div>
+
+            <button class="variant-ghost icon small" aria-label="Insert Heading of size 1" data-rich-input="{{ id }}" data-input-command="heading-1" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h8"/><path d="M4 18V6"/><path d="M12 18V6"/><path d="m17 12 3-2v8"/></svg>
+            </button>
+            <button class="variant-ghost icon small" aria-label="Insert Heading of size 2" data-rich-input="{{ id }}" data-input-command="heading-2" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h8"/><path d="M4 18V6"/><path d="M12 18V6"/><path d="M21 18h-4c0-4 4-3 4-6 0-1.5-2-2.5-4-1"/></svg>
+            </button>
+            <button class="variant-ghost icon small" aria-label="Insert Heading of size 3" data-rich-input="{{ id }}" data-input-command="heading-3" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h8"/><path d="M4 18V6"/><path d="M12 18V6"/><path d="M17.5 10.5c1.7-1 3.5 0 3.5 1.5a2 2 0 0 1-2 2"/><path d="M17 17.5c2 1.5 4 .3 4-1.5a2 2 0 0 0-2-2"/></svg>
+            </button>
+
+            <button class="variant-ghost icon small" aria-label="Insert List" data-rich-input="{{ id }}" data-input-command="list-unordered" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/></svg>
+            </button>
+            <button class="variant-ghost icon small" aria-label="Toggle Block Quote" data-rich-input="{{ id }}" data-input-command="blockquote" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 5H3"/><path d="M21 12H8"/><path d="M21 19H8"/><path d="M3 12v7"/></svg>
+            </button>
+            <button class="variant-ghost icon small" aria-label="Toggle Subscript" data-rich-input="{{ id }}" data-input-command="subscript" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 5 8 8"/><path d="m12 5-8 8"/><path d="M20 19h-4c0-1.5.44-2 1.5-2.5S20 15.33 20 14c0-.47-.17-.93-.48-1.29a2.11 2.11 0 0 0-2.62-.44c-.42.24-.74.62-.9 1.07"/></svg>
+            </button>
+            <button class="variant-ghost icon small" aria-label="Toggle Superscript" data-rich-input="{{ id }}" data-input-command="superscript" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 19 8-8"/><path d="m12 19-8-8"/><path d="M20 12h-4c0-1.5.442-2 1.5-2.5S20 8.334 20 7.002c0-.472-.17-.93-.484-1.29a2.105 2.105 0 0 0-2.617-.436c-.42.239-.738.614-.899 1.06"/></svg>
+            </button>
+
+            <div class="vertical-rule"></div>
+
+            {# Size 16 looks too big for the link icon, so it's 14 #}
+            <div class="menu-wrapper">
+                <button class="variant-ghost icon small" popovertarget="insert-link-menu-{{ id }}" aria-label="Insert URL Link" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                </button>
+                <menu popover id="insert-link-menu-{{ id }}" data-transform-origin="bottom-left">
+                    <section class="flex-col gap-1_5">
+                        <input type="text" id="link-text-{{ id }}" name="link-text-{{ id }}" placeholder="Text to display" aria-label="Text to display" />
+                        <input type="text" id="link-url-{{ id }}" name="link-url-{{ id }}" placeholder="URL to link" aria-label="URL to link" />
+                        <button class="variant-primary justify-center" data-rich-input="{{ id }}" data-input-command="link" type="button">Insert</button>
+                    </section>
+                </menu>
+            </div>
+            <div class="menu-wrapper">
+                <button class="variant-ghost icon small" popovertarget="insert-codeblock-menu-{{ id }}" aria-label="Toggle Codeblock" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
+                </button>
+                <menu popover id="insert-codeblock-menu-{{ id }}" data-transform-origin="bottom-left">
+                    <section class="flex-col gap-1_5">
+                        <input type="text" id="codeblock-language-{{ id }}" name="codeblock-language-{{ id }}" placeholder="Code language" aria-label="Code language" />
+                        <input type="text" id="codeblock-content-{{ id }}" name="codeblock-content-{{ id }}" placeholder="Code" aria-label="Code" />
+                        <button class="variant-primary justify-center" data-rich-input="{{ id }}" data-input-command="codeblock" type="button">Insert</button>
+                    </section>
+                </menu>
+            </div>
+            {% if send_button %}
+                <button class="variant-primary small icon round-full" hx-nonce="{{ g.csp_nonce }}" aria-label="Send" id="send-button" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"/><path d="M6 12h16"/></svg>
+                </button>
+            {% endif %}
+        </div>
+    </div>
+{%- endmacro %}

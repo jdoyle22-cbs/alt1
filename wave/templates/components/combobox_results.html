@@ -1,0 +1,15 @@
+{% if results %}
+    {% for result in results %}
+        <li 
+            hx-on:mousedown="
+                q('#combobox-input-{{ id }}').value = '{{ result.name }}';
+                q('#combobox-value-{{ id }}').value = '{{ result.name }}';
+            " 
+            hx-nonce="{{ g.csp_nonce }}"
+        >
+            {{ result.name }}
+        </li>
+    {% endfor %}
+{% else %}
+    <li>No results found</li>
+{% endif %}

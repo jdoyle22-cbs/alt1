@@ -4,18 +4,21 @@
     font-weight: 100 900;
     font-display: swap;
     src: url("../fonts/Inter/InterVariable.woff2") format("woff2");
+    unicode-range: U+0000-10FFFF;
 }
 
 @font-face {
     font-family: "Inter";
-    font-style: italic;
+    font-style: normal;
     font-weight: 100 900;
     font-display: swap;
-    src: url("../fonts/Inter/InterVariable-Italic.woff2") format("woff2");
+    src: url("../fonts/Inter/InterVariable.subset.woff2") format("woff2");
+    unicode-range: U+0020-007F, U+2010-2026, U+20AC;
 }
 
 :root {
     font-family: "Inter", sans-serif;
     font-optical-sizing: auto;
     font-weight: 400;
+    font-display: swap;
 }

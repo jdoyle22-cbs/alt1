@@ -35,3 +35,32 @@ document.addEventListener("click", (event) => {
         },
     );
 })
+
+document.body.addEventListener('change', function (event) {
+    const fileInput = event.target;
+
+    if (fileInput.type === 'file') {
+        const statusId = fileInput.getAttribute('aria-describedby');
+
+        if (statusId) {
+            const statusText = document.getElementById(statusId);
+
+            if (statusText) {
+                if (fileInput.files && fileInput.files[0]) {
+                    statusText.textContent = fileInput.files[0].name;
+                } else {
+                    statusText.textContent = 'No file selected';
+                }
+            }
+        }
+    }
+});
+
+htmx.on("share", async (evt) => {
+    try {
+        const { handleShare } = await import('/static/js/share.js');
+        handleShare(evt.detail);
+    } catch (error) {
+        console.error("Failed to load the sharing script:", error);
+    }
+});

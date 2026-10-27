@@ -1,6 +1,8 @@
+import heapq
 from datetime import datetime
 from enum import Enum
 
+from rapidfuzz import fuzz
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
@@ -8,14 +10,13 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
-    LargeBinary,
     String,
     Table,
     Text,
     UniqueConstraint,
     func,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, scoped_session
 
 from .db import Base
 
@@ -42,9 +43,8 @@ chat_association_table = Table(
     Column("user_id", Integer, ForeignKey("user.id"), primary_key=True),
 )
 
+
 # Tables
-
-
 class User(Base):
     __tablename__ = "user"
 
@@ -53,7 +53,7 @@ class User(Base):
     display_name: Mapped[str] = mapped_column(String(30), nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
-    profile_picture: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
+    profile_picture: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Relations
     posts: Mapped[list[Post]] = relationship(back_populates="user")
@@ -118,7 +118,7 @@ class Topic(Base):
     )
 
     description: Mapped[str] = mapped_column(String(9999), nullable=False)
-    image: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
+    image: Mapped[str | None] = mapped_column(Text, nullable=False)
 
 
 class Tag(Base):
@@ -246,7 +246,7 @@ class Chat(Base):
     )
 
     title: Mapped[str] = mapped_column(String(100), nullable=False)
-    picture: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
+    picture: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     owner_id: Mapped[int]
     members: Mapped[list[User]] = relationship(
@@ -276,3 +276,38 @@ class ChatMessage(Base):
     user: Mapped[User] = relationship(back_populates="messages")
 
     text: Mapped[str] = mapped_column(String(250), nullable=False)
+
+
+def streamed_fuzzy_search(
+    table,
+    search_column: str,
+    session: scoped_session,
+    search_query: str,
+    limit: int = 15,
+    chunk_size: int = 10000,
+    score_cutoff: int = 60,
+):
+    top_matches = []
+    search_query_lower = search_query.lower()
+
+    query = session.query(table).yield_per(chunk_size)
+
+    for row in query:
+        column_value = getattr(row, search_column, None)
+        if not column_value:
+            continue
+
+        row_name_lower = str(column_value).lower()
+        score = fuzz.token_sort_ratio(search_query_lower, row_name_lower)
+
+        if score >= score_cutoff:
+            item = (score, row.id, row)
+
+            if len(top_matches) < limit:
+                heapq.heappush(top_matches, item)
+            else:
+                heapq.heappushpop(top_matches, item)
+
+    sorted_matches = sorted(top_matches, key=lambda x: x[0], reverse=True)
+
+    return [match[2] for match in sorted_matches]

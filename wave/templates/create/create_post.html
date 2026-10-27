@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
 {% from "/components/form/submit_button.html" import submit_button %}
+{% from '/components/rich_text_input.html' import rich_text_input %}
+{% from '/components/combobox.html' import combobox %}
 
 {% block header %}
 <h1>{% block title %}Create Post{% endblock %}</h1>
@@ -22,9 +24,9 @@
             <time>now</time>
         </header>
 
-        <textarea type="text" name="title" id="title" class="__title remove-styling" placeholder="Title"></textarea>
+        <textarea type="text" name="title" id="title" class="__title remove-styling" placeholder="Title" required></textarea>
 
-        <textarea type="text" name="body" id="body" class="__body remove-styling" placeholder="Body"></textarea>
+        {{ rich_text_input(id="body", placeholder="Body", class="__body", required=true) }}
 
         <footer class="__actions">
             <div class="reaction-buttons">
@@ -60,12 +62,12 @@
     </article>
 
     <section class="form-group">
-        <div class="input-form-wrapper no-bottom" for="topic_id">
-            <label for="topic_id">
-                <span>Topic ID</span>
+        <div class="input-form-wrapper no-bottom" for="topic_name">
+            <label for="topic_name">
+                <span>Topic</span>
                 <span>Choose a suitable location for this post.</span>
             </label>
-            <input type="text" id="topic_id" name="topic_id" value="" />
+            {{ combobox(id="topic_name", search_type="topic", name="topic_name") }}
         </div>
         <div class="input-form-wrapper no-bottom" for="href">
             <label for="href">
@@ -74,12 +76,27 @@
             </label>
             <input type="text" id="href" name="href" value="" />
         </div>
-        <div class="input-form-wrapper no-bottom" for="image">
+        <div class="input-form-wrapper" for="image">
             <label for="image">
                 <span>Image</span>
                 <span>Attach an image to this post.</span>
             </label>
-            <input type="text" id="image" name="image" value="" />
+            <div class="file-upload">
+                <label for="image" class="file-upload__label">
+                    <span class="button variant-secondary">Choose file</span>
+                    <span class="file-upload__text" id="image-status">No file selected</span>
+                </label>
+
+                <input
+                    id="image"
+                    class="file-upload__input"
+                    type="file"
+                    name="image"
+                    aria-describedby="image-status"
+                    accept="image/*"
+                    required
+                >
+            </div>
         </div>
     </section>
 
@@ -98,10 +115,29 @@
             </label>
             <input type="checkbox" id="locked" name="locked" />
         </div>
+        <div class="input-form-wrapper no-top no-bottom" for="locked">
+            <label for="locked">
+                <span>Spoiler</span>
+                <span>Stop people from accidentally viewing this post.</span>
+            </label>
+            <input type="checkbox" id="spoiler" name="spoiler" />
+        </div>
     </section>
 
-    <div id="error"></div>
-
-    {{ submit_button() }}
+    <section class="form-group">
+        <div class="input-form-wrapper singular">
+            <label>
+                <span><div id="error"></div></span>
+            </label>
+            
+            <div class="flex-row justify-end gap-1_5">
+                <button class="variant-ghost" disabled="true" :disabled="q('input[required]').arr().some(input => !input.value.trim())" :aria-busy="matches('.htmx-request')" hx-nonce="{{ g.csp_nonce }}" hx-indicator="#loader" aria-label="Save this post as a draft">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13"/><path d="m8 6 2-2"/><path d="m18 16 2-2"/><path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+                    Save as Draft
+                </button>
+                {{ submit_button() }}
+            </div>
+        </div>
+    <section>
 </form>
 {% endblock %}

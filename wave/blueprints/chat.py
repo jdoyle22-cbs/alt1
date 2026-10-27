@@ -1,3 +1,4 @@
+from icecream import ic
 import base64
 from typing import Any
 from wave.db import db
@@ -152,13 +153,13 @@ def handle_message(data: dict[str, Any]):
             "message",
             {
                 "text": f"{message}",
-                "username": user.display_name,
+                "username": user.username,
                 "profile_picture": user.profile_picture,
             },
             to=room,
         )
     except SQLAlchemyError as e:
-        print(f"[ERR] [DB] {e}")
+        ic(f"[ERR] [DB] {e}")
         db.session.rollback()
         emit(
             "persist_error",
@@ -168,7 +169,7 @@ def handle_message(data: dict[str, Any]):
             "message",
             {
                 "text": f"{message}",
-                "username": user.display_name,
+                "username": user.username,
                 "profile_picture": user.profile_picture,
             },
             to=room,
@@ -183,7 +184,7 @@ def handle_disconnect(data: dict[str, Any]):
     if user is None:
         return
 
-    leave_room(user.display_name)
+    leave_room(user.username)
 
     try:
         chat_id = int(data["chatId"])
@@ -205,5 +206,5 @@ def handle_disconnect(data: dict[str, Any]):
 
 @socketio.on_error("/chat")
 def error_handler_chat(e: Any):
-    print("[ERR]", e)
+    ic("[ERR]", e)
     emit("chat_error")

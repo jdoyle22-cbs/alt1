@@ -1,3 +1,4 @@
+from icecream import ic
 from wave.db import db
 from wave.models import Post, Reply
 
@@ -39,7 +40,7 @@ def create_post_reply(parent_id: int):
             db.session.add(reply)
             db.session.commit()
         except SQLAlchemyError as e:
-            print(f"[DB] [ERR] {e}")
+            ic(f"[DB] [ERR] {e}")
             db.session.rollback()
             return render_template(
                 "/components/form-message.html",
@@ -98,7 +99,7 @@ def create_reply_reply(parent_id: int):
             db.session.add(reply)
             db.session.commit()
         except SQLAlchemyError as e:
-            print(f"[DB] [ERR] {e}")
+            ic(f"[DB] [ERR] {e}")
             db.session.rollback()
             return render_template(
                 "/components/form-message.html",

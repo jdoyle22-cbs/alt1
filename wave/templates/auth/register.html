@@ -6,26 +6,47 @@
 
 {% block content %}
 <form method="POST">
-    <div>
-        <label for="username">Username</label>
-        <input type="text" name="username" id="username" required>
-    </div>
+    <section class="form-group">
+        <div class="input-form-wrapper" for="username">
+            <label for="username">
+                <span>Username</span>
+            </label>
+            <input type="text" name="username" id="username" required>
+        </div>
+        <div class="input-form-wrapper" for="display_name">
+            <label for="display_name">
+                <span>Display Name</span>
+            </label>
+            <input type="text" name="display_name" id="display_name" required>
+        </div>
+        <div class="input-form-wrapper" for="display_name">
+            <label for="email">
+                <span>Email</span>
+            </label>
+            <input type="email" name="email" id="email" required>
+        </div>
+        <div class="input-form-wrapper no-top" for="password">
+            <label for="password">
+                <span>Password</span>
+            </label>
+            <input type="password" name="password" id="password" required>
+        </div>
+    </section>
 
-    <div>
-        <label for="display_name">Display Name</label>
-        <input type="text" name="display_name" id="display_name" required>
-    </div>
+    <section class="form-group">
+        <div class="input-form-wrapper singular">
+            <label>
+                <span><div id="error"></div></span>
+            </label>
 
-    <div>
-        <label for="email">Email</label>
-        <input type="email" name="email" id="email" required>
-    </div>
-
-    <div>
-        <label for="password">Password</label>
-        <input type="password" name="password" id="password" required>
-    </div>
-
-    <button class="variant-primary" type="submit">Register</button>
+            <div class="flex-row justify-end gap-1_5">
+                <a href="{{ url_for('auth.login') }}" class="button variant-ghost">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/></svg>
+                    Login
+                </a>
+                <button class="variant-primary" type="submit">Register</button>
+            </div>
+        </div>
+    </section>
 </form>
 {% endblock %}
